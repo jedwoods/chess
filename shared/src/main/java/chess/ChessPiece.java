@@ -72,6 +72,19 @@ public class ChessPiece {
       return startPos > 0 && startPos <= 8 && endPos > 0 && endPos <= 8;
     }
 
+    public boolean rookMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor) {
+        ChessPosition myPosition = new ChessPosition(row, column);
+        ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
+        if (currPiece == null){
+            collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+            return true;
+        } else if (currPiece.getTeamColor() != myColor) {
+            collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+            return false;
+        }else{
+            return false;
+        }
+    };
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> collection = new ArrayList<>();
@@ -89,61 +102,43 @@ public class ChessPiece {
                 break;
             case ROOK:
 
+
+
                 row += 1;
                 while (inbounds(row, column)) {
-                    ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
-                    if (currPiece == null){
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
-                        row++;
-                    } else if (currPiece.getTeamColor() != myColor) {
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+                    boolean flag = rookMove(row, column, collection, board, myColor);
+                    if (!flag){
                         break;
-                    }else{
-                        break;}
+                    }
                     row += 1;
                 }
+
                 row = myPosition.getRow();
                 row -=1;
-
                 while (inbounds(row, column)) {
-                    ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
-                    if (currPiece == null){
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
-                        row++;
-                    } else if (currPiece.getTeamColor() != myColor) {
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    if (!flag){
                         break;
-                    }else{
-                        break;}
+                    }
                     row -= 1;
                 }
                 row = myPosition.getRow();
                 column -=1;
                 while (inbounds(row, column)) {
-                    ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
-                    if (currPiece == null){
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
-                        row++;
-                    } else if (currPiece.getTeamColor() != myColor) {
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    if (!flag){
                         break;
-                    }else{
-                        break;}
+                    }
                     column -= 1;
                 }
                 column = myPosition.getColumn();
                 column +=1;
 
                 while (inbounds(row, column)) {
-                    ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
-                    if (currPiece == null){
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
-                        row++;
-                    } else if (currPiece.getTeamColor() != myColor) {
-                        collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    if (!flag){
                         break;
-                    }else{
-                        break;}
+                    }
                     column += 1;
                 }
                 column = myPosition.getColumn();
