@@ -72,14 +72,13 @@ public class ChessPiece {
       return startPos > 0 && startPos <= 8 && endPos > 0 && endPos <= 8;
     }
 
-    public boolean rookMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor) {
-        ChessPosition myPosition = new ChessPosition(row, column);
+    public boolean rookMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor, ChessPosition startPosition) {
         ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
         if (currPiece == null){
-            collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
             return true;
         } else if (currPiece.getTeamColor() != myColor) {
-            collection.add(new ChessMove(myPosition, new ChessPosition(row, column), null));
+            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
             return false;
         }else{
             return false;
@@ -95,18 +94,73 @@ public class ChessPiece {
             case KING:
                 break;
             case QUEEN:
+                ChessPiece bishop = new ChessPiece(myColor, ChessPiece.PieceType.BISHOP);
+                ChessPiece rook = new ChessPiece(myColor, ChessPiece.PieceType.ROOK);
+//                board.addPiece(myPosition, bishop);
+                Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
+//                board.addPiece(myPosition, rook);
+                Collection<ChessMove> rookMoves = rook.pieceMoves(board, myPosition);
+//                board.addPiece(myPosition, new ChessPiece(myColor, ChessPiece.PieceType.QUEEN));
+                collection.addAll(bishopMoves);
+                collection.addAll(rookMoves);
                 break;
             case BISHOP:
+                row += 1;
+                column += 1;
+                while (inbounds(row, column)) {
+                    boolean flag = rookMove(row, column, collection, board, myColor,myPosition);
+                    if (!flag){
+                        break;
+                    }
+                    row += 1;
+                    column += 1;
+                }
+
+                row = myPosition.getRow();
+                column = myPosition.getColumn();
+                row -=1;
+                column -=1;
+                while (inbounds(row, column)) {
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    if (!flag){
+                        break;
+                    }
+                    row -= 1;
+                    column -= 1;
+                }
+                row = myPosition.getRow();
+                column = myPosition.getColumn();
+
+                column -=1;
+                row += 1;
+                while (inbounds(row, column)) {
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    if (!flag){
+                        break;
+                    }
+                    column -= 1;
+                    row += 1;
+                }
+                column = myPosition.getColumn();
+                row = myPosition.getRow();
+                column +=1;
+                row -= 1;
+                while (inbounds(row, column)) {
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    if (!flag){
+                        break;
+                    }
+                    column += 1;
+                    row -= 1;
+                }
+                column = myPosition.getColumn();
                 break;
             case KNIGHT:
                 break;
             case ROOK:
-
-
-
                 row += 1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection, board, myColor);
+                    boolean flag = rookMove(row, column, collection, board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -116,16 +170,17 @@ public class ChessPiece {
                 row = myPosition.getRow();
                 row -=1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
                     row -= 1;
                 }
                 row = myPosition.getRow();
+
                 column -=1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -135,15 +190,13 @@ public class ChessPiece {
                 column +=1;
 
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor);
+                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
                     column += 1;
                 }
                 column = myPosition.getColumn();
-
-
                 break;
             case PAWN:
                 if( pieceColor == ChessGame.TeamColor.BLACK){
