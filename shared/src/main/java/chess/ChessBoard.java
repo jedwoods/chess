@@ -14,7 +14,14 @@ public class ChessBoard {
     List <List<ChessPiece>> currentBoard = new ArrayList<>(8);
 
     public ChessBoard() {
-        this.resetBoard();
+        for (int i = 0; i < 8; i++){
+            List<ChessPiece> newList = new ArrayList<ChessPiece>(8);
+            for (int j = 0; j < 8; j++) {
+                newList.add(null);  // Fill with null values
+            }
+            currentBoard.add(newList);
+        }
+
     }
 
     /**
