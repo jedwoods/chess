@@ -72,7 +72,11 @@ public class ChessPiece {
       return startPos > 0 && startPos <= 8 && endPos > 0 && endPos <= 8;
     }
 
-    public boolean rookMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor, ChessPosition startPosition) {
+    public boolean oneMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor, ChessPosition startPosition) {
+
+        if ( ! inbounds(row, column)) {
+            return false;
+        }
         ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
         if (currPiece == null){
             collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
@@ -92,15 +96,20 @@ public class ChessPiece {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         switch (type){
             case KING:
+                oneMove(row+1, column, collection,board, myColor,myPosition);
+                oneMove(row-1, column, collection, board, myColor, myPosition);
+                oneMove(row, column+1, collection, board, myColor, myPosition);
+                oneMove(row, column-1, collection, board, myColor, myPosition);
+                oneMove(row+1, column+1, collection, board, myColor, myPosition);
+                oneMove(row-1, column+1, collection, board, myColor, myPosition);
+                oneMove(row-1, column-1, collection, board, myColor, myPosition);
+                oneMove(row+1, column-1, collection, board, myColor, myPosition);
                 break;
             case QUEEN:
                 ChessPiece bishop = new ChessPiece(myColor, ChessPiece.PieceType.BISHOP);
                 ChessPiece rook = new ChessPiece(myColor, ChessPiece.PieceType.ROOK);
-
                 Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
-
                 Collection<ChessMove> rookMoves = rook.pieceMoves(board, myPosition);
-
                 collection.addAll(bishopMoves);
                 collection.addAll(rookMoves);
                 break;
@@ -108,7 +117,7 @@ public class ChessPiece {
                 row += 1;
                 column += 1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection, board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection, board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -121,7 +130,7 @@ public class ChessPiece {
                 row -=1;
                 column -=1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -134,7 +143,7 @@ public class ChessPiece {
                 column -=1;
                 row += 1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -146,7 +155,7 @@ public class ChessPiece {
                 column +=1;
                 row -= 1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -160,7 +169,7 @@ public class ChessPiece {
             case ROOK:
                 row += 1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection, board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection, board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -170,7 +179,7 @@ public class ChessPiece {
                 row = myPosition.getRow();
                 row -=1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -180,7 +189,7 @@ public class ChessPiece {
 
                 column -=1;
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
@@ -190,7 +199,7 @@ public class ChessPiece {
                 column +=1;
 
                 while (inbounds(row, column)) {
-                    boolean flag = rookMove(row, column, collection,board, myColor,myPosition);
+                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
                     if (!flag){
                         break;
                     }
