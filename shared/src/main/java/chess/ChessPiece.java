@@ -96,11 +96,11 @@ public class ChessPiece {
             case QUEEN:
                 ChessPiece bishop = new ChessPiece(myColor, ChessPiece.PieceType.BISHOP);
                 ChessPiece rook = new ChessPiece(myColor, ChessPiece.PieceType.ROOK);
-//                board.addPiece(myPosition, bishop);
+
                 Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
-//                board.addPiece(myPosition, rook);
+
                 Collection<ChessMove> rookMoves = rook.pieceMoves(board, myPosition);
-//                board.addPiece(myPosition, new ChessPiece(myColor, ChessPiece.PieceType.QUEEN));
+
                 collection.addAll(bishopMoves);
                 collection.addAll(rookMoves);
                 break;
