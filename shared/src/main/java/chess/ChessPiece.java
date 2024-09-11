@@ -161,14 +161,6 @@ public class ChessPiece {
                 column = myPosition.getColumn();
                 break;
             case KNIGHT:
-                oneMove(row+2, column+1, collection,board, myColor,myPosition);
-                oneMove(row+2, column-1, collection, board, myColor, myPosition);
-                oneMove(row-2, column+1, collection, board, myColor, myPosition);
-                oneMove(row-2, column-1, collection, board, myColor, myPosition);
-                oneMove(row+1, column+2, collection, board, myColor, myPosition);
-                oneMove(row+1, column-2, collection, board, myColor, myPosition);
-                oneMove(row-1, column+2, collection, board, myColor, myPosition);
-                oneMove(row-1, column-2, collection, board, myColor, myPosition);
                 break;
             case ROOK:
                 row += 1;
@@ -275,12 +267,66 @@ public class ChessPiece {
                 }}
                 else{
                     if (row == 2){
-                        oneMove()
+                        if (board.getPiece(new ChessPosition(row+1, column)) == null){
+                            collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column ), null ));
+                            if (board.getPiece(new ChessPosition(row+2, column)) == null){
+                                collection.add(new ChessMove(myPosition,new ChessPosition(row+2, column ), null ));
+                            }
+                        }
+                        if (board.getPiece(new ChessPosition(row+1, column -1)) != null) {
+                            if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
+                                collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
+                            }
+                        }
+                        if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
+                            if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
+                                collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
+                            }
 
+                        }
                     } else if (row == 7) {
+                        if (board.getPiece(new ChessPosition(row+1, column)) == null){
 
+                            for (PieceType kind : PieceType.values()) {
+                                if (kind != PieceType.KING && kind != PieceType.PAWN){
+                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column ), kind ));
+                                }
+                            }
+                        } if (board.getPiece(new ChessPosition(row+1, column -1)) != null && board.getPiece(new ChessPosition(row+1, column -1)).getTeamColor() != ChessGame.TeamColor.WHITE) {
+                            for (PieceType kind : PieceType.values()) {
+                                if (kind != PieceType.KING && kind != PieceType.PAWN){
+                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column-1 ), kind ));
+                                }
+                            }
+                        } if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
+                            if (inbounds(row+1,column+1)){
+                            if (board.getPiece(new ChessPosition(row+1, column +1)).pieceColor != ChessGame.TeamColor.WHITE){
+                                for (PieceType kind : PieceType.values()) {
+                                    if (kind != PieceType.KING && kind != PieceType.PAWN){
+                                        collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column+1 ), kind ));
+                                    }
+                                }                            }
+                            }
+                        }
                     }else {
+                        if (inbounds(row+1,column)){
+                        if (board.getPiece(new ChessPosition(row+1, column)) == null) {
+                            collection.add(new ChessMove(myPosition, new ChessPosition(row + 1, column), null));
+                        }
+                        if (board.getPiece(new ChessPosition(row+1, column -1)) != null) {
+                            if (inbounds(row+1,column-1)){
+                                if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
+                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
+                                }}
 
+                            } if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
+                            if (inbounds(row+1, column+1)){
+                                if (board.getPiece(new ChessPosition(row+1, column +1)).pieceColor != ChessGame.TeamColor.WHITE){
+                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column +1), null ));
+                                }
+                            }
+                    }
+                }
             }
 
                     break;
