@@ -194,6 +194,15 @@ public class ChessPiece {
                 column = myPosition.getColumn();
                 break;
             case KNIGHT:
+                oneMove(row+2, column+1, collection,board, myColor,myPosition);
+                oneMove(row+2, column-1, collection, board, myColor, myPosition);
+                oneMove(row-2, column+1, collection, board, myColor, myPosition);
+                oneMove(row-2, column-1, collection, board, myColor, myPosition);
+                oneMove(row+1, column+2, collection, board, myColor, myPosition);
+                oneMove(row-1, column+2, collection, board, myColor, myPosition);
+                oneMove(row-1, column-2, collection, board, myColor, myPosition);
+                oneMove(row+1, column-2, collection, board, myColor, myPosition);
+
                 break;
             case ROOK:
                 row += 1;
