@@ -70,6 +70,8 @@ public class ChessPiece {
     }
 
     public boolean oneMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor, ChessPosition startPosition) {
+        if (!inbounds(row, column)) {return false;};
+
         ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
         if (currPiece == null){
             collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
@@ -80,6 +82,37 @@ public class ChessPiece {
         }else{
             return false;
         }
+    };
+
+    public boolean pawnMove(int row, int column, Collection<ChessMove> collection, ChessGame.TeamColor myColor, ChessPosition startPosition, ChessBoard board) {
+
+        if (inbounds(row, column) && board.getPiece(new ChessPosition(row, column)) == null) {
+            if (row == 8 || row == 1){
+                for (PieceType pieceType : PieceType.values()){
+                    if (pieceType != PieceType.KING && pieceType != PieceType.PAWN){
+                    collection.add(new ChessMove(startPosition, new ChessPosition(row, column), pieceType));
+                    }
+                }
+            }else{
+            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));}
+            return true;
+        }
+        return false;
+    };
+
+    public boolean pawnTake(int row, int column, Collection<ChessMove> collection, ChessGame.TeamColor myColor, ChessPosition startPosition, ChessBoard board){
+        if (inbounds(row, column) && board.getPiece(new ChessPosition(row, column)) != null && board.getPiece(new ChessPosition(row, column)).getTeamColor() != myColor) {
+            if (row == 8 || row == 1){
+                for (PieceType pieceType : PieceType.values()){
+                    if (pieceType != PieceType.KING && pieceType != PieceType.PAWN){
+                        collection.add(new ChessMove(startPosition, new ChessPosition(row, column), pieceType));
+                    }
+                }
+            }else{
+                collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));}
+            return true;
+        }
+        return false;
     };
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
@@ -204,135 +237,33 @@ public class ChessPiece {
                 column = myPosition.getColumn();
                 break;
             case PAWN:
-                if( pieceColor == ChessGame.TeamColor.BLACK){
-
-                    if (row == 7){
-                        if (board.getPiece(new ChessPosition(row-1, column)) == null){
-                            collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column ), null ));
-                            if (board.getPiece(new ChessPosition(row-2, column)) == null){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row-2, column ), null ));
-                            }
-                        } else if (board.getPiece(new ChessPosition(row-1, column -1)) != null) {
-                            if (board.getPiece(new ChessPosition(row-1, column -1)).pieceColor != ChessGame.TeamColor.BLACK){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column -1), null ));
-                            }
-                        } else if (board.getPiece(new ChessPosition(row-1, column +1)) != null) {
-                            if (board.getPiece(new ChessPosition(row-1, column -1)).pieceColor != ChessGame.TeamColor.BLACK){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column -1), null ));
-                            }
-
-                        }
-                    } else if (row == 2) {
-                        if (board.getPiece(new ChessPosition(row-1, column)) == null){
-                            for (PieceType kind : PieceType.values()) {
-                                if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column ), kind ));
-                                }
-                            }
-                        } ChessPiece test = board.getPiece(new ChessPosition(row-1, column-1));
-                        if (board.getPiece(new ChessPosition(row-1, column -1)) != null && board.getPiece(new ChessPosition(row-1, column -1)).pieceColor != ChessGame.TeamColor.BLACK) {
-                            for (PieceType kind : PieceType.values()) {
-                                if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column-1 ), kind ));
-                                }
-                            }
-                        } if (board.getPiece(new ChessPosition(row-1, column +1)) != null && board.getPiece(new ChessPosition(row-1, column +1)).pieceColor != ChessGame.TeamColor.BLACK) {
-                            for (PieceType kind : PieceType.values()) {
-                                if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column+1 ), kind ));
-                                }
-                            }
+                if (myColor == ChessGame.TeamColor.BLACK){
+                    if (row == 7) {
+                        var checkMove = pawnMove(row-1 , column, collection, myColor, myPosition, board);
+                        if (checkMove){
+                            pawnMove(row-2 , column, collection, myColor, myPosition, board);
                         }
                     }else{
-                        if (board.getPiece(new ChessPosition(row-1, column)) == null){
-                            if (inbounds(row-1,column)) {
-                                collection.add(new ChessMove(myPosition, new ChessPosition(row - 1, column), null));
-                            }}
-                        if (board.getPiece(new ChessPosition(row-1, column -1)) != null) {
-                                if (inbounds(row-1,column-1)){
-                                    if (board.getPiece(new ChessPosition(row-1, column -1)).pieceColor != ChessGame.TeamColor.BLACK){
-                                        collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column -1), null ));
-                                    }}
-
-                            } if (board.getPiece(new ChessPosition(row-1, column +1)) != null) {
-                                if (inbounds(row-1, column+1)){
-                                    if (board.getPiece(new ChessPosition(row-1, column +1)).pieceColor != ChessGame.TeamColor.BLACK){
-                                        collection.add(new ChessMove(myPosition,new ChessPosition(row-1, column +1), null ));
-                                    }
-                                }
-                        }
-
-
-
-                }}
+                        pawnMove(row-1 , column, collection, myColor, myPosition, board);
+                    }
+                    pawnTake(row-1 , column-1, collection, myColor, myPosition, board);
+                    pawnTake(row-1 , column+1, collection, myColor, myPosition, board);
+                }
                 else{
-                    if (row == 2){
-                        if (board.getPiece(new ChessPosition(row+1, column)) == null){
-                            collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column ), null ));
-                            if (board.getPiece(new ChessPosition(row+2, column)) == null){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row+2, column ), null ));
+                    {
+                        if (row == 2) {
+                            var checkMove = pawnMove(row+1 , column, collection, myColor, myPosition, board);
+                            if (checkMove){
+                                pawnMove(row+2 , column, collection, myColor, myPosition, board);
                             }
+                        }else{
+                            pawnMove(row+1 , column, collection, myColor, myPosition, board);
                         }
-                        if (board.getPiece(new ChessPosition(row+1, column -1)) != null) {
-                            if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
-                            }
-                        }
-                        if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
-                            if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
-                                collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
-                            }
-
-                        }
-                    } else if (row == 7) {
-                        if (board.getPiece(new ChessPosition(row+1, column)) == null){
-
-                            for (PieceType kind : PieceType.values()) {
-                                if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column ), kind ));
-                                }
-                            }
-                        } if (board.getPiece(new ChessPosition(row+1, column -1)) != null && board.getPiece(new ChessPosition(row+1, column -1)).getTeamColor() != ChessGame.TeamColor.WHITE) {
-                            for (PieceType kind : PieceType.values()) {
-                                if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column-1 ), kind ));
-                                }
-                            }
-                        } if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
-                            if (inbounds(row+1,column+1)){
-                            if (board.getPiece(new ChessPosition(row+1, column +1)).pieceColor != ChessGame.TeamColor.WHITE){
-                                for (PieceType kind : PieceType.values()) {
-                                    if (kind != PieceType.KING && kind != PieceType.PAWN){
-                                        collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column+1 ), kind ));
-                                    }
-                                }                            }
-                            }
-                        }
-                    }else {
-                        if (inbounds(row+1,column)){
-                        if (board.getPiece(new ChessPosition(row+1, column)) == null) {
-                            collection.add(new ChessMove(myPosition, new ChessPosition(row + 1, column), null));
-                        }
-                        if (board.getPiece(new ChessPosition(row+1, column -1)) != null) {
-                            if (inbounds(row+1,column-1)){
-                                if (board.getPiece(new ChessPosition(row+1, column -1)).pieceColor != ChessGame.TeamColor.WHITE){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column -1), null ));
-                                }}
-
-                            } if (board.getPiece(new ChessPosition(row+1, column +1)) != null) {
-                            if (inbounds(row+1, column+1)){
-                                if (board.getPiece(new ChessPosition(row+1, column +1)).pieceColor != ChessGame.TeamColor.WHITE){
-                                    collection.add(new ChessMove(myPosition,new ChessPosition(row+1, column +1), null ));
-                                }
-                            }
+                        pawnTake(row+1 , column-1, collection, myColor, myPosition, board);
+                        pawnTake(row+1 , column+1, collection, myColor, myPosition, board);
                     }
                 }
-            }
-
-                    break;
-        }
-
-
+                break;
     }
     return collection;
 }
