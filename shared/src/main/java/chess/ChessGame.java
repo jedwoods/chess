@@ -16,8 +16,8 @@ public class ChessGame {
     ChessBoard board = new ChessBoard();
 
     public ChessGame() {
-        board.resetBoard();
-        currentTeam = TeamColor.WHITE
+//        board.resetBoard();
+//        currentTeam = TeamColor.WHITE;
     }
 
     /**
@@ -59,12 +59,13 @@ public class ChessGame {
         }
         for (var move : piece.pieceMoves(board, startPosition)) {
             ChessPosition endPosition = move.endPosition;
+            var tempPiece = board.getPiece((endPosition));
             board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
-            if (isInCheck(piece.getTeamColor())){
+            if (! isInCheck(piece.getTeamColor())){
                 validMoves.add(move);
             }
-            board.addPiece(endPosition, null);
+            board.addPiece(endPosition, tempPiece);
             board.addPiece(startPosition, piece);
         }
     return validMoves;
@@ -78,12 +79,25 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         var moves = validMoves(move.startPosition);
+        if (moves == null){
+            throw new InvalidMoveException("Invalid Move Blech");
+        }
         for (var mv : moves){
-            if (mv.endPosition == move.endPosition){
+            if (mv.endPosition.getRow() == move.endPosition.getRow() && mv.endPosition.getColumn() == move.endPosition.getColumn() && mv.promotionPiece == null){
                 board.addPiece(move.endPosition, board.getPiece(move.startPosition));
                 board.addPiece(move.startPosition, null);
                 return;
             }
+            if (mv.endPosition.getRow() == move.endPosition.getRow() && mv.endPosition.getColumn() == move.endPosition.getColumn() && mv.promotionPiece == move.promotionPiece){
+                var piece = board.getPiece(move.startPosition);
+                var color = piece.getTeamColor();
+                var promotion = mv.getPromotionPiece();
+                board.addPiece(move.endPosition, new ChessPiece(color, promotion));
+                board.addPiece(move.startPosition, null);
+                return;
+            }
+
+
         }
         throw new InvalidMoveException("Invalid Move");
     }
@@ -95,26 +109,26 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        var currentColor=this.getTeamTurn();
+        var currentColor = teamColor;
         ChessPosition kingPosition = new ChessPosition(-1,-1);
         Collection<ChessMove> possibleMoves = new ArrayList<>();
 
         for (int i=1; i <= 8; i++) {
             for (int j=1; j <= 8; j++) {
                 ChessPosition position=new ChessPosition(i, j);
-                ChessPiece pos=board.getPiece(position);
-                if (pos != null && pos.getTeamColor() != getTeamTurn() && pos.getPieceType() == ChessPiece.PieceType.KING) {
+                ChessPiece pos = board.getPiece(position);
+                if (pos != null && pos.getTeamColor() == teamColor && pos.getPieceType() == ChessPiece.PieceType.KING) {
                     kingPosition=new ChessPosition(i, j);
                 }
-
-                if (pos != null &&  pos.getTeamColor() == getTeamTurn()) {
+                else if (pos != null &&  pos.getTeamColor() != currentColor) {
+                    Collection<ChessMove> tempMoves = pos.pieceMoves(board, position);
                     possibleMoves.addAll(pos.pieceMoves(board, position));
                 }
             }
         }
 
         for (var position : possibleMoves){
-            if (position.endPosition == kingPosition){
+            if (position.endPosition.row == kingPosition.row && position.endPosition.col == kingPosition.col){
                 return true;
             }
         }
@@ -152,7 +166,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board.resetBoard();
+        this.board = board;
 
     }
 

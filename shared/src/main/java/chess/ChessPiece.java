@@ -1,8 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.ArrayList;
 
 /**
  * Represents a single chess piece
@@ -32,6 +32,14 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
     /**
      * The various different chess piece options
      */
@@ -58,6 +66,104 @@ public class ChessPiece {
         return type;
     }
 
+
+    public boolean oneMove(int row, int col, ChessPosition currentPosition, ChessBoard board, Collection<ChessMove> collection){
+        if( ! inbounds(row, col)){return false;}
+
+        ChessPiece currentPiece = board.getPiece(new ChessPosition(row, col));
+        ChessPiece myPiece =board.getPiece(currentPosition);
+        if (currentPiece == null){
+            collection.add(new ChessMove(currentPosition, new ChessPosition(row, col), null));
+            return true;
+        }
+        if (currentPiece.getTeamColor() == myPiece.getTeamColor()){
+            return false;
+        }else if (currentPiece.getTeamColor() != myPiece.getTeamColor()){
+            collection.add(new ChessMove(currentPosition, new ChessPosition(row, col), null));
+            return false;
+        }
+        return false;
+    }
+
+
+
+    public void promotion(int row, int col,ChessPosition startPosition, Collection<ChessMove> collection){
+        collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.QUEEN));
+        collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.ROOK));
+        collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.BISHOP));
+        collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.KNIGHT));
+
+    }
+
+
+    public boolean pawnMove(ChessPosition currentPosition, ChessBoard board, Collection<ChessMove> collection){
+        int row = currentPosition.getRow();
+        int col = currentPosition.getColumn();
+        int move = -1;
+        var currpiece = board.getPiece(currentPosition);
+        var color = currpiece.getTeamColor();
+        if (color == ChessGame.TeamColor.WHITE){
+            move = 1;
+            if(inbounds(row + move, col) && board.getPiece(new ChessPosition(row + move, col)) == null){
+                if (row == 2){
+                    collection.add(new ChessMove(currentPosition, new ChessPosition(row + move , col), null));
+                    if (board.getPiece(new ChessPosition(row +2, col)) == null){
+                        collection.add(new ChessMove(currentPosition, new ChessPosition(row +2 , col), null));
+
+                    }
+                }
+                else if (row + move == 8){
+                    promotion(8, col, currentPosition, collection);
+                }else{
+                    collection.add(new ChessMove(currentPosition, new ChessPosition(row + move , col), null));
+                }
+            }
+        }else {
+            if(inbounds(row + move, col) && board.getPiece(new ChessPosition(row + move, col)) == null){
+                if (row == 7){
+                    collection.add(new ChessMove(currentPosition, new ChessPosition(row + move , col), null));
+
+                    if (board.getPiece(new ChessPosition(row - 2, col)) == null){
+                        collection.add(new ChessMove(currentPosition, new ChessPosition(row - 2, col), null));
+                    }
+                }
+                else if (row + move == 1){
+                    promotion(1, col, currentPosition, collection);
+                }else{
+                    collection.add(new ChessMove(currentPosition, new ChessPosition(row + move , col), null));
+                }
+
+            }
+        }
+        return false;
+    }
+
+    public boolean pawnTake(int row, int col, ChessPosition currentPosition, ChessBoard board, Collection<ChessMove> collection){
+        int move = 1;
+        if (! inbounds(row,col)){return false;
+        }
+        var ourPiece = board.getPiece(currentPosition);
+        var otherPiece = board.getPiece(new ChessPosition(row,col));
+        var color = ourPiece.getTeamColor();
+        if (otherPiece == null){
+            return false;
+        }
+        if (ourPiece.getTeamColor() != otherPiece.getTeamColor()){
+            if (color == ChessGame.TeamColor.BLACK && row == 1){
+                promotion(row,col, currentPosition, collection);
+            }else if (color == ChessGame.TeamColor.WHITE && row == 8){
+                promotion(row,col, currentPosition, collection);
+            }
+            else{
+                collection.add(new ChessMove(currentPosition, new ChessPosition(row,col), null));
+            }
+        }
+        return true;
+    }
+
+    public boolean inbounds(int row, int col){
+        return 0 < row && row <= 8 && 0 < col && col <= 8;
+    }
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -65,215 +171,109 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public boolean inbounds(int startPos, int endPos) {
-      return startPos > 0 && startPos <= 8 && endPos > 0 && endPos <= 8;
-    }
-
-    public boolean oneMove(int row, int column, Collection<ChessMove> collection, ChessBoard board, ChessGame.TeamColor myColor, ChessPosition startPosition) {
-        if (!inbounds(row, column)) {return false;};
-
-        ChessPiece currPiece = board.getPiece(new ChessPosition(row, column));
-        if (currPiece == null){
-            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
-            return true;
-        } else if (currPiece.getTeamColor() != myColor) {
-            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));
-            return false;
-        }else{
-            return false;
-        }
-    };
-
-    public boolean pawnMove(int row, int column, Collection<ChessMove> collection, ChessGame.TeamColor myColor, ChessPosition startPosition, ChessBoard board) {
-
-        if (inbounds(row, column) && board.getPiece(new ChessPosition(row, column)) == null) {
-            if (row == 8 || row == 1){
-                for (PieceType pieceType : PieceType.values()){
-                    if (pieceType != PieceType.KING && pieceType != PieceType.PAWN){
-                    collection.add(new ChessMove(startPosition, new ChessPosition(row, column), pieceType));
-                    }
-                }
-            }else{
-            collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));}
-            return true;
-        }
-        return false;
-    };
-
-    public boolean pawnTake(int row, int column, Collection<ChessMove> collection, ChessGame.TeamColor myColor, ChessPosition startPosition, ChessBoard board){
-        if (inbounds(row, column) && board.getPiece(new ChessPosition(row, column)) != null && board.getPiece(new ChessPosition(row, column)).getTeamColor() != myColor) {
-            if (row == 8 || row == 1){
-                for (PieceType pieceType : PieceType.values()){
-                    if (pieceType != PieceType.KING && pieceType != PieceType.PAWN){
-                        collection.add(new ChessMove(startPosition, new ChessPosition(row, column), pieceType));
-                    }
-                }
-            }else{
-                collection.add(new ChessMove(startPosition, new ChessPosition(row, column), null));}
-            return true;
-        }
-        return false;
-    };
-
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> collection = new ArrayList<>();
+        Collection<ChessMove> collection = new HashSet<>();
         int row = myPosition.getRow();
-        int column = myPosition.getColumn();
-        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
-        switch (type){
-            case KING:
-                oneMove(row+1, column, collection,board, myColor,myPosition);
-                oneMove(row-1, column, collection, board, myColor, myPosition);
-                oneMove(row, column+1, collection, board, myColor, myPosition);
-                oneMove(row, column-1, collection, board, myColor, myPosition);
-                oneMove(row+1, column+1, collection, board, myColor, myPosition);
-                oneMove(row-1, column+1, collection, board, myColor, myPosition);
-                oneMove(row-1, column-1, collection, board, myColor, myPosition);
-                oneMove(row+1, column-1, collection, board, myColor, myPosition);
-                break;
-            case QUEEN:
-                ChessPiece bishop = new ChessPiece(myColor, ChessPiece.PieceType.BISHOP);
-                ChessPiece rook = new ChessPiece(myColor, ChessPiece.PieceType.ROOK);
+        int col = myPosition.getColumn();
+        ChessPiece currPiece = board.getPiece(myPosition);
 
-                Collection<ChessMove> bishopMoves = bishop.pieceMoves(board, myPosition);
-
-                Collection<ChessMove> rookMoves = rook.pieceMoves(board, myPosition);
-
-                collection.addAll(bishopMoves);
-                collection.addAll(rookMoves);
-                break;
-            case BISHOP:
+        if (currPiece == null){
+            return collection;
+        }else if (currPiece.getPieceType() == PieceType.ROOK){
+            do {
                 row += 1;
-                column += 1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection, board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    row += 1;
-                    column += 1;
-                }
+            }while (oneMove(row, col, myPosition, board, collection));
 
-                row = myPosition.getRow();
-                column = myPosition.getColumn();
-                row -=1;
-                column -=1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    row -= 1;
-                    column -= 1;
-                }
-                row = myPosition.getRow();
-                column = myPosition.getColumn();
-
-                column -=1;
-                row += 1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    column -= 1;
-                    row += 1;
-                }
-                column = myPosition.getColumn();
-                row = myPosition.getRow();
-                column +=1;
+            row = myPosition.getRow();
+            do {
                 row -= 1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    column += 1;
-                    row -= 1;
-                }
-                column = myPosition.getColumn();
-                break;
-            case KNIGHT:
-                oneMove(row+2, column+1, collection,board, myColor,myPosition);
-                oneMove(row+2, column-1, collection, board, myColor, myPosition);
-                oneMove(row-2, column+1, collection, board, myColor, myPosition);
-                oneMove(row-2, column-1, collection, board, myColor, myPosition);
-                oneMove(row+1, column+2, collection, board, myColor, myPosition);
-                oneMove(row-1, column+2, collection, board, myColor, myPosition);
-                oneMove(row-1, column-2, collection, board, myColor, myPosition);
-                oneMove(row+1, column-2, collection, board, myColor, myPosition);
+            } while (oneMove(row, col, myPosition, board, collection));
+            row = myPosition.getRow();
+            do{
+                col += 1;
+            } while (oneMove(row, col, myPosition, board, collection));
 
-                break;
-            case ROOK:
-                row += 1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection, board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    row += 1;
-                }
+            col =myPosition.getColumn();
+            do{
+                col -= 1;
+            } while (oneMove(row, col, myPosition, board, collection));
 
-                row = myPosition.getRow();
+            col = myPosition.getColumn();
+
+        }else if (currPiece.getPieceType() == PieceType.BISHOP){
+            do {
+                row +=1;
+                col += 1;
+            }while (oneMove(row, col, myPosition, board, collection));
+            col = myPosition.getColumn();
+            row = myPosition.getRow();
+            do {
+                row +=1;
+                col -= 1;
+            }while (oneMove(row, col, myPosition, board, collection));
+            col = myPosition.getColumn();
+            row = myPosition.getRow();
+
+            do {
                 row -=1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    row -= 1;
-                }
-                row = myPosition.getRow();
+                col += 1;
+            }while (oneMove(row, col, myPosition, board, collection));
+            col = myPosition.getColumn();
+            row = myPosition.getRow();
 
-                column -=1;
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    column -= 1;
-                }
-                column = myPosition.getColumn();
-                column +=1;
+            do {
+                row -=1;
+                col -= 1;
+            }while (oneMove(row, col, myPosition, board, collection));
+            col = myPosition.getColumn();
+            row = myPosition.getRow();
 
-                while (inbounds(row, column)) {
-                    boolean flag = oneMove(row, column, collection,board, myColor,myPosition);
-                    if (!flag){
-                        break;
-                    }
-                    column += 1;
-                }
-                column = myPosition.getColumn();
-                break;
-            case PAWN:
-                if (myColor == ChessGame.TeamColor.BLACK){
-                    if (row == 7) {
-                        var checkMove = pawnMove(row-1 , column, collection, myColor, myPosition, board);
-                        if (checkMove){
-                            pawnMove(row-2 , column, collection, myColor, myPosition, board);
-                        }
-                    }else{
-                        pawnMove(row-1 , column, collection, myColor, myPosition, board);
-                    }
-                    pawnTake(row-1 , column-1, collection, myColor, myPosition, board);
-                    pawnTake(row-1 , column+1, collection, myColor, myPosition, board);
-                }
-                else{
-                    {
-                        if (row == 2) {
-                            var checkMove = pawnMove(row+1 , column, collection, myColor, myPosition, board);
-                            if (checkMove){
-                                pawnMove(row+2 , column, collection, myColor, myPosition, board);
-                            }
-                        }else{
-                            pawnMove(row+1 , column, collection, myColor, myPosition, board);
-                        }
-                        pawnTake(row+1 , column-1, collection, myColor, myPosition, board);
-                        pawnTake(row+1 , column+1, collection, myColor, myPosition, board);
-                    }
-                }
-                break;
+        }else if (currPiece.getPieceType() == PieceType.QUEEN){
+            board.addPiece(myPosition, new ChessPiece(currPiece.getTeamColor(), PieceType.BISHOP));
+            Collection<ChessMove> bishopMoves = pieceMoves(board, myPosition);
+            board.addPiece(myPosition, new ChessPiece(currPiece.getTeamColor(), PieceType.ROOK));
+            Collection<ChessMove> rookMoves = pieceMoves(board, myPosition);
+            board.addPiece(myPosition, new ChessPiece(currPiece.getTeamColor(), PieceType.QUEEN));
+            collection.addAll(bishopMoves);
+            collection.addAll(rookMoves);
+
+        }else if (currPiece.getPieceType() == PieceType.KNIGHT){
+            oneMove(row + 2,col + 1, myPosition, board, collection);
+            oneMove(row + 2,col - 1, myPosition, board, collection);
+            oneMove(row - 2,col + 1, myPosition, board, collection);
+            oneMove(row -2 ,col - 1, myPosition, board, collection);
+            oneMove(row + 1,col + 2, myPosition, board, collection);
+            oneMove(row + 1,col - 2, myPosition, board, collection);
+            oneMove(row - 1,col + 2, myPosition, board, collection);
+            oneMove(row - 1,col - 2, myPosition, board, collection);
+
+        }else if (currPiece.getPieceType() == PieceType.KING){
+            oneMove(row + 1,col + 1, myPosition, board, collection);
+            oneMove(row + 1,col, myPosition, board, collection);
+            oneMove(row + 1,col - 1, myPosition, board, collection);
+            oneMove(row,col + 1, myPosition, board, collection);
+            oneMove(row,col - 1, myPosition, board, collection);
+            oneMove(row - 1,col + 1, myPosition, board, collection);
+            oneMove(row - 1,col, myPosition, board, collection);
+            oneMove(row - 1,col - 1, myPosition, board, collection);
+
+        }else if (currPiece.getPieceType() == PieceType.PAWN){
+            var color = currPiece.getTeamColor();
+            if (color == ChessGame.TeamColor.BLACK){
+                pawnMove(myPosition, board, collection);
+                pawnTake(row - 1, col + 1, myPosition, board, collection);
+                pawnTake(row - 1, col - 1, myPosition, board, collection);
+            }
+            else{
+                pawnMove(myPosition, board, collection);
+                pawnTake(row + 1, col + 1, myPosition, board, collection);
+                pawnTake(row + 1, col - 1, myPosition, board, collection);
+            }
+
+        }
+
+
+
+        return collection;
     }
-    return collection;
-}
 }
