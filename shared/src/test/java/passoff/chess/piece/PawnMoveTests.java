@@ -252,7 +252,7 @@ public class PawnMoveTests {
             validMoves.add(new ChessMove(startingPosition, end, ChessPiece.PieceType.KNIGHT));
         }
 
-        validateMoves(board, testPiece, startingPosition, validMoves);
+         validateMoves(board, testPiece, startingPosition, validMoves);
     }
 
 }
