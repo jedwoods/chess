@@ -17,6 +17,7 @@ public class ChessGame {
 
     public ChessGame() {
         board.resetBoard();
+        currentTeam = TeamColor.WHITE
     }
 
     /**
@@ -76,7 +77,15 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        var moves = validMoves(move.startPosition);
+        for (var mv : moves){
+            if (mv.endPosition == move.endPosition){
+                board.addPiece(move.endPosition, board.getPiece(move.startPosition));
+                board.addPiece(move.startPosition, null);
+                return;
+            }
+        }
+        throw new InvalidMoveException("Invalid Move");
     }
 
     /**
