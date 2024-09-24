@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -16,8 +17,8 @@ public class ChessGame {
     ChessBoard board = new ChessBoard();
 
     public ChessGame() {
-//        board.resetBoard();
-//        currentTeam = TeamColor.WHITE;
+        board.resetBoard();
+        currentTeam = TeamColor.WHITE;
     }
 
     /**
@@ -142,8 +143,28 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        return possibleMoves(teamColor).isEmpty() && isInCheck(teamColor);
     }
+
+
+    public Collection<ChessMove> possibleMoves(TeamColor teamColor){
+        Collection<ChessMove> allMoves = new HashSet<>();
+        for (int i=1; i <= 8; i++) {
+            for (int j=1; j <= 8; j++) {
+                ChessPosition currentPosition = new ChessPosition(i,j);
+                var currentPiece = board.getPiece(currentPosition);
+                if (currentPiece!= null && currentPiece.getTeamColor() == teamColor){
+                    Collection<ChessMove> vMoves = validMoves(currentPosition);
+                    allMoves.addAll(vMoves);
+
+                }
+
+            }
+        }
+        return allMoves;
+    }
+
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
@@ -153,7 +174,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return possibleMoves(teamColor).isEmpty() && ! isInCheck(teamColor);
     }
 
 
@@ -169,9 +190,6 @@ public class ChessGame {
         this.board = board;
 
     }
-
-
-
 
 
     /**
