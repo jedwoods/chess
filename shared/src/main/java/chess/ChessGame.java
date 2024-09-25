@@ -80,6 +80,11 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         var moves = validMoves(move.startPosition);
+
+        if (board.getPiece(move.startPosition).getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException("Move out of turn");
+        }
+
         if (moves == null){
             throw new InvalidMoveException("Invalid Move Blech");
         }
