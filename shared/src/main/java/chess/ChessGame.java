@@ -85,8 +85,6 @@ public class ChessGame {
         if (moves == null){
             throw new InvalidMoveException("Invalid Move Blech");
         }
-//        var tempPiece = board.getPiece(move.startPosition);
-//        var currentTeam  = getTeamTurn();
         if (board.getPiece(move.startPosition).getTeamColor() != this.getTeamTurn()){
             throw new InvalidMoveException("Move out of turn");
         }
@@ -129,7 +127,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        var currentColor = teamColor;
         ChessPosition kingPosition = new ChessPosition(-1,-1);
         Collection<ChessMove> possibleMoves = new ArrayList<>();
 
@@ -140,7 +137,7 @@ public class ChessGame {
                 if (pos != null && pos.getTeamColor() == teamColor && pos.getPieceType() == ChessPiece.PieceType.KING) {
                     kingPosition=new ChessPosition(i, j);
                 }
-                else if (pos != null &&  pos.getTeamColor() != currentColor) {
+                else if (pos != null &&  pos.getTeamColor() != teamColor) {
                     Collection<ChessMove> tempMoves = pos.pieceMoves(board, position);
                     possibleMoves.addAll(pos.pieceMoves(board, position));
                 }
@@ -195,9 +192,6 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         return possibleMoves(teamColor).isEmpty() && ! isInCheck(teamColor);
     }
-
-
-
 
 
     /**
