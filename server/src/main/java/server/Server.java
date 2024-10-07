@@ -2,14 +2,23 @@ package server;
 
 import spark.*;
 
+
 public class Server {
 
     public int run(int desiredPort) {
+
+//        init db or DataAccess layer
+
+
+
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
-
         // Register your endpoints and handle exceptions here.
+
+
+        Spark.post("/clear",this::clearDB );
+
+
 
 
 
@@ -20,6 +29,11 @@ public class Server {
         return Spark.port();
     }
 
+    private Object clearDB (Request req, Response res) {
+
+        return res;
+//        return new Gson().tojson()Map.;
+    }
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
