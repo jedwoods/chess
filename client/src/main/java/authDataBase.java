@@ -4,7 +4,6 @@ import java.util.Objects;
 public class authDataBase implements dbClass<authToken, String> {
   ArrayList<authToken> tokenCollection = new ArrayList<>();
 
-
   @Override
   public void remove(String authToken) {
     tokenCollection.remove(this.get(authToken));
@@ -19,14 +18,10 @@ public class authDataBase implements dbClass<authToken, String> {
       return null;
   }
 
-
-
   @Override
   public void add(authToken token) {
     tokenCollection.add(token);
 
   }
-
-
 
 }
