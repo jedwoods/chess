@@ -7,7 +7,7 @@ public class Server {
 
     public int run(int desiredPort) {
 
-//        init db or DataAccess layer
+        handler handler = new handler();
 
 
 
