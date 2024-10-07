@@ -85,8 +85,7 @@ public class ChessPiece {
         return false;
     }
 
-
-
+    
     public void promotion(int row, int col,ChessPosition startPosition, Collection<ChessMove> collection){
         collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.QUEEN));
         collection.add(new ChessMove(startPosition, new ChessPosition(row,col), PieceType.ROOK));
