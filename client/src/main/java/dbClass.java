@@ -1,7 +1,12 @@
-public interface dbClass {
-//  public void remove();
-  public void get();
-//  public void update();
+public interface dbClass<S, T> {
 
-  void remove(authToken tokenObject);
+
+  public void remove(T tokenType);
+
+
+  public S get(T tokenType);
+
+
+  public void add(S token);
+
 }

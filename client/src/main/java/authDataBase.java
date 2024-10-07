@@ -1,16 +1,32 @@
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class authDataBase{
+public class authDataBase implements dbClass<authToken, String> {
   ArrayList<authToken> tokenCollection = new ArrayList<>();
 
 
-  public void remove(authToken tokenObject) {
-    tokenCollection.remove(tokenObject);
+  @Override
+  public void remove(String authToken) {
+    tokenCollection.remove(this.get(authToken));
+  }
+
+  public authToken get(String authToken) {
+    for (var obj : tokenCollection){
+      if (Objects.equals(obj.authToken(), authToken)){
+        return obj;
+      }
+    }
+      return null;
   }
 
 
-  public void get(String authToken) {
+
+  @Override
+  public void add(authToken token) {
+    tokenCollection.add(token);
 
   }
+
+
 
 }
