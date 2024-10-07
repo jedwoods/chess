@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class userDataBase implements  dbClass<user, String>{
   List<user> users;
-  private userDataBase(){
+  public userDataBase(){
     users = new ArrayList<>();
 
   }
