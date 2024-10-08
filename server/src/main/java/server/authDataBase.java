@@ -26,4 +26,9 @@ public class authDataBase implements dbClass<authToken, String> {
 
   }
 
+  @Override
+  public int size() {
+    return tokenCollection.size();
+  }
+
 }
