@@ -1,12 +1,12 @@
-package server;
+package dataaccess.GameDataBase;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class gameDataBase implements dbClass<gameData, Integer> {
+public class GameDataBase implements GameInterface {
   ArrayList<gameData> gameStorage;
 
-  public gameDataBase(){
+  public GameDataBase(){
     gameStorage = new ArrayList<>();
   }
 

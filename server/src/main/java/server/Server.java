@@ -1,20 +1,23 @@
 package server;
+import dataaccess.Service;
+import dataaccess.UserDataBase.user;
 import spark.*;
-
+import com.google.gson.*;
 
 public class Server {
-    handler currentHandler = new handler();
+    Handler handler = new Handler();
+
 
     public int run(int desiredPort) {
-
-
 
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         // Register your endpoints and handle exceptions here.
 
 
-        Spark.delete("/db",this::clearDB );
+        Spark.delete("/db", handler::clear);
+        Spark.post("/user", handler::register);
+        Spark.post("/game", handler::newGame);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -23,11 +26,7 @@ public class Server {
         return Spark.port();
     }
 
-    private Object clearDB (Request req, Response res) {
-        this.currentHandler.clear();
-        return res;
-//        return new Gson().tojson()Map.;
-    }
+
     public void stop() {
         Spark.stop();
         Spark.awaitStop();

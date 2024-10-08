@@ -1,4 +1,4 @@
-package server;
+package dataaccess.authDataBase;
 
 public interface dbClass<S, T> {
 

@@ -1,7 +1,9 @@
-package server;
+package dataaccess.authDataBase;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.UUID;
+
 
 public class authDataBase implements dbClass<authToken, String> {
   ArrayList<authToken> tokenCollection = new ArrayList<>();
@@ -29,6 +31,12 @@ public class authDataBase implements dbClass<authToken, String> {
   @Override
   public int size() {
     return tokenCollection.size();
+  }
+
+  public authToken newSession(String username){
+    return new authToken(username, UUID.randomUUID().toString());
+
+
   }
 
 }

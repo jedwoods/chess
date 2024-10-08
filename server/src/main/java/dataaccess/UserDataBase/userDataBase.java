@@ -1,9 +1,10 @@
-package server;
+package dataaccess.UserDataBase;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class userDataBase implements  dbClass<user, String>{
+public class userDataBase implements UserDataInterface{
   List<user> users;
   public userDataBase(){
     users = new ArrayList<>();
@@ -24,7 +25,7 @@ public class userDataBase implements  dbClass<user, String>{
   @Override
   public void add(user currentUser) {
     for (var user : users){
-      if (Objects.equals(user.userName(), currentUser.userName()) || Objects.equals(user.email(), currentUser.email()) || Objects.equals(user.password(), currentUser.password())){
+      if (Objects.equals(user.username(), currentUser.username()) || Objects.equals(user.email(), currentUser.email()) || Objects.equals(user.password(), currentUser.password())){
         return;
       }
     }

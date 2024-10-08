@@ -1,4 +1,4 @@
-package server;//import
+package dataaccess.authDataBase;//import
 
 public record authToken(String username, String authToken) {
 }

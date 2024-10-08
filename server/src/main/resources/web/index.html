@@ -14,7 +14,7 @@
 <h1><span class="chess-icon">♔</span> CS 240 Chess Server</h1>
 <p>
     The CS 240 Chess Server Web API is described below. Some of the APIs require a request body to be sent (like
-    <code>/user/login</code> and <code>/user/register</code>), while others require an Authorization server.authToken
+    <code>/user/login</code> and <code>/user/register</code>), while others require an Authorization dataaccess.authDataBase.authToken
     (received at login). To view the required JSON format, click on a command below and look at the example request
     body. To try out an API, modify the request as needed, and press Send.
 </p>
@@ -27,8 +27,8 @@
             <div class="path">/user</div>
         </td>
         <td>
-            <span class="description">Register a user</span> If successful, an authorization server.authToken is returned. You
-            may use the server.authToken with future requests that require authorization. No authorization server.authToken is
+            <span class="description">Register a user</span> If successful, an authorization dataaccess.authDataBase.authToken is returned. You
+            may use the dataaccess.authDataBase.authToken with future requests that require authorization. No authorization dataaccess.authDataBase.authToken is
             required
             to call this endpoint.
         </td>
@@ -39,9 +39,9 @@
             <div class="path">/session</div>
         </td>
         <td>
-            <span class="description">Log in a user</span> If successful, an authorization server.authToken is returned. You
+            <span class="description">Log in a user</span> If successful, an authorization dataaccess.authDataBase.authToken is returned. You
             may
-            use the server.authToken with future requests that require authorization. No authorization server.authToken is required to
+            use the dataaccess.authDataBase.authToken with future requests that require authorization. No authorization dataaccess.authDataBase.authToken is required to
             call this endpoint.
         </td>
     </tr>
@@ -51,7 +51,7 @@
             <div class="path">/session</div>
         </td>
         <td>
-            <span class="description">Logs out an authenticated user</span> An server.authToken is required to call this
+            <span class="description">Logs out an authenticated user</span> An dataaccess.authDataBase.authToken is required to call this
             endpoint.
         </td>
     </tr>
@@ -62,7 +62,7 @@
         </td>
         <td>
             <span class="description">Lists all the games in the database</span> This API does not take a request body.
-            The response JSON lists all the games, including the board. An server.authToken is required to call this endpoint.
+            The response JSON lists all the games, including the board. An dataaccess.authDataBase.authToken is required to call this endpoint.
         </td>
     </tr>
     <tr>
@@ -73,7 +73,7 @@
         <td>
             <span class="description">Create a new Chess Game</span> The request body must contain a name for the game.
             The response JSON contains the ID of created game, or if failed, an error message describing the reason. An
-            server.authToken is required to call this endpoint.
+            dataaccess.authDataBase.authToken is required to call this endpoint.
         </td>
     </tr>
     <tr>
@@ -83,7 +83,7 @@
         </td>
         <td>
             <span class="description">Join a Chess Game</span> The request body must contain the game ID and player
-            color. An server.authToken is required to call this endpoint.
+            color. An dataaccess.authDataBase.authToken is required to call this endpoint.
         </td>
     </tr>
     <tr>
@@ -93,7 +93,7 @@
         </td>
         <td>
             <span class="description">Clear ALL data from the database</span> This includes users and all game data. No
-            authorization server.authToken is required.
+            authorization dataaccess.authDataBase.authToken is required.
         </td>
     </tr>
 </table>
@@ -109,7 +109,7 @@
     </div>
 
     <div class="input">
-        <label for="server.authToken">Auth Token:</label> <input type="text" id="server.authToken" name="server.authToken"/>
+        <label for="authToken">Auth Token:</label> <input type="text" id="authToken" name="authToken"/>
     </div>
 
     <div class="input">
@@ -137,7 +137,7 @@
             </td>
             <td>
                 <span class="description">Connect to game</span> Used for a user to request to connect to a game as a
-                player or observer. Requires gameID and server.authToken.
+                player or observer. Requires gameID and dataaccess.authDataBase.authToken.
             </td>
         </tr>
         <tr>
@@ -146,7 +146,7 @@
             </td>
             <td>
                 <span class="description">Make a move</span> Used to request to make a move in a game. Requires gameID,
-                server.authToken, and a move. Note: You may need to edit the properties of move (startPosition, endPosition,
+                dataaccess.authDataBase.authToken, and a move. Note: You may need to edit the properties of move (startPosition, endPosition,
                 promotionPiece, row, column) to match the variable names in your code so your code can deserialize the
                 ChessMove correctly.
             </td>
@@ -157,7 +157,7 @@
             </td>
             <td>
                 <span class="description">Resign game</span> Forfeits the match and ends the game (no more moves can
-                be made). Requires gameID and server.authToken.
+                be made). Requires gameID and dataaccess.authDataBase.authToken.
             </td>
         </tr>
         <tr>
@@ -166,7 +166,7 @@
             </td>
             <td>
                 <span class="description">Leave game</span> Tells the server you are leaving the game so it will stop
-                sending you notifications. Requires gameID and server.authToken.
+                sending you notifications. Requires gameID and dataaccess.authDataBase.authToken.
             </td>
         </tr>
     </table>
