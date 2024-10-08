@@ -1,5 +1,8 @@
 package server;
 
+
+
+
 public class handler {
   authDataBase sessions;
   gameDataBase games;
@@ -8,13 +11,13 @@ public class handler {
   public handler(){
     this.sessions = new authDataBase();
     this.games = new gameDataBase();
-    this.users = new userDataBase();
+    this.users = new server.userDataBase();
   }
 
   public void clear(){
-    sessions = new authDataBase();
-    games = new gameDataBase();
-    users = new userDataBase();
+    sessions = new server.authDataBase();
+    games = new server.gameDataBase();
+    users = new server.userDataBase();
   }
 
 public boolean isEmpty(){
