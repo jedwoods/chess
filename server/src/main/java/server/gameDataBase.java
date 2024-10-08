@@ -35,4 +35,9 @@ public class gameDataBase implements dbClass<gameData, Integer> {
     gameStorage.add(token);
   }
 
+  @Override
+  public int size() {
+    return gameStorage.size();
+  }
+
 }

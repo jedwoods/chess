@@ -30,4 +30,9 @@ public class userDataBase implements  dbClass<user, String>{
     }
     users.add(currentUser);
   }
+
+  @Override
+  public int size() {
+    return users.size();
+  }
 }

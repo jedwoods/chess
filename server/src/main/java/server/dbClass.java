@@ -11,4 +11,6 @@ public interface dbClass<S, T> {
 
   public void add(S token);
 
+  public int size();
+
 }

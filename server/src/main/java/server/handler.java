@@ -17,6 +17,8 @@ public class handler {
     users = new userDataBase();
   }
 
-
+public boolean isEmpty(){
+    return games.size() == 0 && users.size() == 0 && sessions.size() == 0;
+}
 
 }

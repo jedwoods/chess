@@ -4,10 +4,9 @@ import spark.*;
 
 
 public class Server {
+    handler currentHandler = new handler();
 
     public int run(int desiredPort) {
-
-        handler handler = new handler();
 
 
 
@@ -16,11 +15,7 @@ public class Server {
         // Register your endpoints and handle exceptions here.
 
 
-        Spark.post("/clear",this::clearDB );
-
-
-
-
+        Spark.delete("/db",this::clearDB );
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -30,7 +25,7 @@ public class Server {
     }
 
     private Object clearDB (Request req, Response res) {
-
+        this.currentHandler.clear();
         return res;
 //        return new Gson().tojson()Map.;
     }
