@@ -13,6 +13,7 @@ public class authDataBase implements dbClass<authToken, String> {
     tokenCollection.remove(this.get(authToken));
   }
 
+  @Override
   public authToken get(String authToken) {
     for (var obj : tokenCollection){
       if (Objects.equals(obj.authToken(), authToken)){

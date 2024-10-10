@@ -10,6 +10,7 @@ public class GameDataBase implements GameInterface {
     gameStorage = new ArrayList<>();
   }
 
+
   @Override
   public void remove(Integer currentID) {
     var gameObj = this.get(currentID);
@@ -17,6 +18,7 @@ public class GameDataBase implements GameInterface {
       gameStorage.remove(gameObj);
     }
   }
+
 
   @Override
   public gameData get(Integer currentID) {
@@ -29,15 +31,18 @@ public class GameDataBase implements GameInterface {
     return null;
   }
 
+
   @Override
   public void add(gameData token) {
     gameStorage.add(token);
   }
 
+
   @Override
   public int size() {
     return gameStorage.size();
   }
+
 
   @Override
   public ArrayList<gameData> listGames(){

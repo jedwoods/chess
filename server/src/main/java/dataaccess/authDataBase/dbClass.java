@@ -8,8 +8,8 @@ public interface dbClass<S, T> {
 
   public S get(T tokenType);
 
-
   public void add(S token);
+
 
   public int size();
 
