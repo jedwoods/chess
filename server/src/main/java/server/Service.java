@@ -12,15 +12,13 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Map;
 
+
 public class Service {
   DataAccess dataAccess;
   public Service(){
     dataAccess= new DataAccess();
 
   }
-
-
-
 
 
   public Object clear(Request req, Response res) throws DataAccessException {
@@ -35,6 +33,7 @@ public class Service {
       throw new DataAccessException(500, "Clear function broke down :(");
     }
   }
+
 
   public Object register(Request req, Response res) throws DataAccessException {
     String bodyStuff = req.body();
@@ -61,6 +60,7 @@ public class Service {
     return new Gson().toJson(token);
   }
 
+
   public Object newGame(Request req, Response res) throws DataAccessException{
     String bodyStuff = req.body();
     String token = req.headers("Authorization");
@@ -74,6 +74,7 @@ public class Service {
     return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
   }
 
+
   public Object logout(Request req, Response res){
     String token = req.headers("Authorization");
     if (!dataAccess.confirmSession(token)){
@@ -84,8 +85,6 @@ public class Service {
     res.body("");
     return new Gson().toJson(new EmptyMessage());
   }
-
-
 
 
   public Object login(Request req, Response res){
@@ -107,6 +106,7 @@ public class Service {
     return new Gson().toJson(token);
   }
 
+
   public Object listGames(Request req, Response res){
     String token = req.headers("Authorization");
     if (!dataAccess.confirmSession(token)){
@@ -115,9 +115,6 @@ public class Service {
     }
 
     return new Gson().toJson(Map.of("games", new HashSet<>(dataAccess.listGames())));}
-
-
-
 
 
   public Object joinGame(Request req, Response res){
@@ -143,7 +140,6 @@ public class Service {
       return new Gson().toJson(new ErrorMessage("Error: Not an actual color"));
     }
 
-
     if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
       dataAccess.removeGame(currentGame);
       dataAccess.reAddGame(new gameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
@@ -158,7 +154,6 @@ public class Service {
     res.status(403);
     return new Gson().toJson(new ErrorMessage("Error: Already taken Forbidden"));
   }
-
 
 
 }
