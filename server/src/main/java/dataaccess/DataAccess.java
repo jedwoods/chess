@@ -17,7 +17,7 @@ public class DataAccess {
     this.sessions = new authDataBase();
     this.games = new GameDataBase();
     this.users = new userDataBase();
-    this.gameNum = 0;
+    this.gameNum = 1;
   }
 
   public void clear(){
@@ -35,6 +35,9 @@ public class DataAccess {
     users.add(newUser);
   }
 
+  public user getUser(String username){
+    return users.get(username);
+  }
 
   public authToken makeToken(String userName){
     return sessions.newSession(userName);
@@ -51,7 +54,13 @@ public class DataAccess {
   public gameData addGame(String gameName){
     gameData game = new gameData(gameNum, null, null, gameName, new ChessGame());
     games.add(game);
+    gameNum += 1;
     return game;
+  }
+
+  public void logout(String token){
+//    authToken currentToken = sessions.get(token);
+    sessions.remove(token);
   }
 
 public boolean isEmpty(){
