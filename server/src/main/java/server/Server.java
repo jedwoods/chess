@@ -1,11 +1,10 @@
 package server;
-import dataaccess.Service;
-import dataaccess.UserDataBase.user;
+import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import spark.*;
-import com.google.gson.*;
 
 public class Server {
-    Handler handler = new Handler();
+    Service service= new Service();
 
 
     public int run(int desiredPort) {
@@ -15,17 +14,27 @@ public class Server {
         // Register your endpoints and handle exceptions here.
 
 
-        Spark.delete("/db", handler::clear);
-        Spark.post("/user", handler::register);
-        Spark.post("/game", handler::newGame);
+        Spark.delete("/db", service::clear);
+        Spark.post("/user", service::register);
+        Spark.post("/game", service::newGame);
+        Spark.exception(DataAccessException.class, this::exceptionHandler);
+
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
+
     }
 
+    private Object exceptionHandler(DataAccessException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
+//        return new Gson().toJson(ex);
+
+        return new Gson().toJson(ex);
+
+    }
 
     public void stop() {
         Spark.stop();

@@ -19,6 +19,11 @@ public class userDataBase implements UserDataInterface{
 
   @Override
   public user get(String username) {
+    for (user currentUser : users){
+      if( Objects.equals(username, currentUser.username())){
+        return currentUser;
+      }
+    }
     return null;
   }
 

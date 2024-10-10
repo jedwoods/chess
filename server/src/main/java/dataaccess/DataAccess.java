@@ -7,13 +7,13 @@ import dataaccess.GameDataBase.*;
 import dataaccess.UserDataBase.*;
 import dataaccess.authDataBase.*;
 
-public class Service {
+public class DataAccess {
   authDataBase sessions;
   GameDataBase games;
   userDataBase users;
   int gameNum;
 
-  public Service(){
+  public DataAccess(){
     this.sessions = new authDataBase();
     this.games = new GameDataBase();
     this.users = new userDataBase();
@@ -27,16 +27,21 @@ public class Service {
   }
 
 
-  public authToken register(user newuser) throws DataAccessException {
-    user usercheck = users.get(newuser.username());
-    if (usercheck != null){
-      return null;
-    }
-    users.add(newuser);
-    authToken newToken = sessions.newSession(newuser.username());
-    sessions.add(newToken);
+  public user userCheck(String userName){
+    return users.get(userName);
+  }
 
-    return newToken;
+  public void addUser(user newUser){
+    users.add(newUser);
+  }
+
+
+  public authToken makeToken(String userName){
+    return sessions.newSession(userName);
+  }
+
+  public void addToken(authToken token){
+    sessions.add(token);
   }
 
   public boolean confirmSession(String token){
