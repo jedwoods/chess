@@ -7,6 +7,10 @@ import dataaccess.GameDataBase.*;
 import dataaccess.UserDataBase.*;
 import dataaccess.authDataBase.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
 public class DataAccess {
   authDataBase sessions;
   GameDataBase games;
@@ -58,9 +62,30 @@ public class DataAccess {
     return game;
   }
 
+  public void reAddGame(gameData game){
+    games.add(game);
+  }
+
+  public void removeGame(gameData game){
+    games.remove(game.gameID());
+  }
+
   public void logout(String token){
 //    authToken currentToken = sessions.get(token);
     sessions.remove(token);
+  }
+
+  public ArrayList<gameData> listGames(){
+    return games.listGames();
+  }
+
+  public gameData getGame(int gameID){
+    return games.get(gameID);
+  }
+
+  public authToken getSession(String token){
+    return sessions.get(token);
+
   }
 
 public boolean isEmpty(){

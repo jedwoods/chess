@@ -8,7 +8,9 @@ import dataaccess.GameDataBase.*;
 import spark.Request;
 import spark.Response;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Map;
 
 public class Service {
   DataAccess dataAccess;
@@ -104,5 +106,59 @@ public class Service {
     dataAccess.addToken(token);
     return new Gson().toJson(token);
   }
+
+  public Object listGames(Request req, Response res){
+    String token = req.headers("Authorization");
+    if (!dataAccess.confirmSession(token)){
+      res.status(401);
+      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
+    }
+
+    return new Gson().toJson(Map.of("games", new HashSet<>(dataAccess.listGames())));}
+
+
+
+
+
+  public Object joinGame(Request req, Response res){
+    String token = req.headers("Authorization");
+
+    if (!dataAccess.confirmSession(token)){
+      res.status(401);
+      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
+    }
+
+    String newUsername = dataAccess.getSession(token).username();
+    String bodyStuff = req.body();
+    joinRequest currentUser =  new Gson().fromJson(bodyStuff, joinRequest.class);
+
+    gameData currentGame = dataAccess.getGame(currentUser.gameID());
+    if (currentGame == null){
+      res.status(400);
+      return new Gson().toJson(new ErrorMessage("Error: bad request"));
+    }
+
+    if (!Objects.equals(currentUser.playerColor(), "BLACK") && !Objects.equals(currentUser.playerColor(), "WHITE") && !Objects.equals(currentUser.playerColor(), "")){
+      res.status(400);
+      return new Gson().toJson(new ErrorMessage("Error: Not an actual color"));
+    }
+
+
+    if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
+      dataAccess.removeGame(currentGame);
+      dataAccess.reAddGame(new gameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
+      return new Gson().toJson(new EmptyMessage());
+    } else if (Objects.equals(currentUser.playerColor(), "BLACK") && currentGame.blackUsername() == null) {
+      dataAccess.removeGame(currentGame);
+      dataAccess.reAddGame(new gameData(currentGame.gameID(),  currentGame.whiteUsername(), newUsername, currentGame.gameName(), currentGame.game() ) );
+      return new Gson().toJson(new EmptyMessage());
+    } else if (Objects.equals(currentUser.playerColor(), "")) {
+      return new Gson().toJson(new EmptyMessage());
+    }
+    res.status(403);
+    return new Gson().toJson(new ErrorMessage("Error: Already taken Forbidden"));
+  }
+
+
 
 }

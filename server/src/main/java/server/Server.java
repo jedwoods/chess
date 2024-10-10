@@ -19,8 +19,8 @@ public class Server {
         Spark.post("/game", service::newGame);
         Spark.delete("/session", service::logout);
         Spark.post("/session", service::login);
-//        Spark.get("/game", service::listGames);
-//        Spark.put("/game",service::joinGame);
+        Spark.get("/game", service::listGames);
+        Spark.put("/game",service::joinGame);
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 
@@ -44,4 +44,5 @@ public class Server {
         Spark.stop();
         Spark.awaitStop();
     }
+
 }

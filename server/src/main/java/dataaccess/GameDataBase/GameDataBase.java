@@ -39,4 +39,9 @@ public class GameDataBase implements GameInterface {
     return gameStorage.size();
   }
 
+  @Override
+  public ArrayList<gameData> listGames(){
+    return gameStorage;
+  }
+
 }
