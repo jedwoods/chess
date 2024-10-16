@@ -4,7 +4,7 @@ import dataaccess.DataAccessException;
 import spark.*;
 
 public class Server {
-    Service service= new Service();
+    Handler service= new Handler();
 
 
     public int run(int desiredPort) {
