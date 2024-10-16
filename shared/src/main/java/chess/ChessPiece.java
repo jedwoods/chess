@@ -263,9 +263,6 @@ public class ChessPiece {
                 pawnMove(myPosition, board, collection);
                 pawnTake(row + 1, col + 1, myPosition, board, collection);
                 pawnTake(row + 1, col - 1, myPosition, board, collection);
-            }
-
-        }
-        return collection;
-    }
+            } }
+        return collection;}
 }
