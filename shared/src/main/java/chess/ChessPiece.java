@@ -179,7 +179,6 @@ public class ChessPiece {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece currPiece = board.getPiece(myPosition);
-
         if (currPiece == null){
             return collection;
         }else if (currPiece.getPieceType() == PieceType.ROOK){
@@ -202,7 +201,6 @@ public class ChessPiece {
             } while (oneMove(row, col, myPosition, board, collection));
 
             col = myPosition.getColumn();
-
         }else if (currPiece.getPieceType() == PieceType.BISHOP){
             do {
                 row +=1;
@@ -216,21 +214,18 @@ public class ChessPiece {
             }while (oneMove(row, col, myPosition, board, collection));
             col = myPosition.getColumn();
             row = myPosition.getRow();
-
             do {
                 row -=1;
                 col += 1;
             }while (oneMove(row, col, myPosition, board, collection));
             col = myPosition.getColumn();
             row = myPosition.getRow();
-
             do {
                 row -=1;
                 col -= 1;
             }while (oneMove(row, col, myPosition, board, collection));
             col = myPosition.getColumn();
             row = myPosition.getRow();
-
         }else if (currPiece.getPieceType() == PieceType.QUEEN){
             board.addPiece(myPosition, new ChessPiece(currPiece.getTeamColor(), PieceType.BISHOP));
             Collection<ChessMove> bishopMoves = pieceMoves(board, myPosition);
@@ -239,7 +234,6 @@ public class ChessPiece {
             board.addPiece(myPosition, new ChessPiece(currPiece.getTeamColor(), PieceType.QUEEN));
             collection.addAll(bishopMoves);
             collection.addAll(rookMoves);
-
         }else if (currPiece.getPieceType() == PieceType.KNIGHT){
             oneMove(row + 2,col + 1, myPosition, board, collection);
             oneMove(row + 2,col - 1, myPosition, board, collection);
@@ -249,7 +243,6 @@ public class ChessPiece {
             oneMove(row + 1,col - 2, myPosition, board, collection);
             oneMove(row - 1,col + 2, myPosition, board, collection);
             oneMove(row - 1,col - 2, myPosition, board, collection);
-
         }else if (currPiece.getPieceType() == PieceType.KING){
             oneMove(row + 1,col + 1, myPosition, board, collection);
             oneMove(row + 1,col, myPosition, board, collection);
@@ -259,7 +252,6 @@ public class ChessPiece {
             oneMove(row - 1,col + 1, myPosition, board, collection);
             oneMove(row - 1,col, myPosition, board, collection);
             oneMove(row - 1,col - 1, myPosition, board, collection);
-
         }else if (currPiece.getPieceType() == PieceType.PAWN){
             var color = currPiece.getTeamColor();
             if (color == ChessGame.TeamColor.BLACK){
@@ -274,9 +266,6 @@ public class ChessPiece {
             }
 
         }
-
-
-
         return collection;
     }
 }
