@@ -136,17 +136,17 @@ public class Handler {
       res.status(400);
       return new Gson().toJson(new ErrorMessage("Error: bad request"));
     }
-
-    if (!Objects.equals(currentUser.playerColor(), "BLACK") && !Objects.equals(currentUser.playerColor(), "WHITE") && !Objects.equals(currentUser.playerColor(), "")){
+    boolean blackBool = Objects.equals(currentUser.playerColor(), "BLACK");
+    boolean whiteBool = Objects.equals(currentUser.playerColor(), "WHITE");
+    if (!blackBool && !whiteBool && !Objects.equals(currentUser.playerColor(), "")){
       res.status(400);
       return new Gson().toJson(new ErrorMessage("Error: Not an actual color"));
     }
-
     if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
       dataAccess.removeGame(currentGame);
       dataAccess.reAddGame(new GameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
       return new Gson().toJson(new EmptyMessage());
-    } else if (Objects.equals(currentUser.playerColor(), "BLACK") && currentGame.blackUsername() == null) {
+    } else if (blackBool && currentGame.blackUsername() == null) {
       dataAccess.removeGame(currentGame);
       dataAccess.reAddGame(new GameData(currentGame.gameID(),  currentGame.whiteUsername(), newUsername, currentGame.gameName(), currentGame.game() ) );
       return new Gson().toJson(new EmptyMessage());

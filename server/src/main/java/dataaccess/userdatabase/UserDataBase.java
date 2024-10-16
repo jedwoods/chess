@@ -30,7 +30,9 @@ public class UserDataBase implements UserDataInterface{
   @Override
   public void add(User currentUser) {
     for (var user : users){
-      if (Objects.equals(user.username(), currentUser.username()) || Objects.equals(user.email(), currentUser.email()) || Objects.equals(user.password(), currentUser.password())){
+      boolean userBool = Objects.equals(user.username(), currentUser.username());
+      boolean emailBool = Objects.equals(user.email(), currentUser.email());
+      if ( userBool || emailBool || Objects.equals(user.password(), currentUser.password())){
         return;
       }
     }
