@@ -1,4 +1,4 @@
-package dataAccess.authDataBase;
+package dataaccess.authdatabase;
 
 import java.util.ArrayList;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package dataAccess.authDataBase;
+package dataaccess.authdatabase;
 
 public interface DataBaseInterface<S, T> {
 

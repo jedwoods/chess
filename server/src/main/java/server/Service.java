@@ -1,10 +1,10 @@
 package server;
-import dataAccess.*;
+import dataaccess.*;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccess;
-import dataAccess.authDataBase.AuthToken;
-import dataAccess.userDataBase.*;
+import dataaccess.DataAccess;
+import dataaccess.authdatabase.AuthToken;
+import dataaccess.userdatabase.*;
 
 public class Service {
   DataAccess dataAccess;

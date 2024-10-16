@@ -1,11 +1,11 @@
-package dataAccess;
+package dataaccess;
 
 
 
 import chess.ChessGame;
-import dataAccess.userDataBase.*;
-import dataAccess.gameDataBase.*;
-import dataAccess.authDataBase.*;
+import dataaccess.userdatabase.*;
+import dataaccess.gamedatabase.*;
+import dataaccess.authdatabase.*;
 
 import java.util.ArrayList;
 

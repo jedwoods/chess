@@ -1,10 +1,10 @@
 package server;
-import dataAccess.*;
+import dataaccess.*;
 import com.google.gson.*;
 
-import dataAccess.userDataBase.User;
-import dataAccess.authDataBase.*;
-import dataAccess.gameDataBase.*;
+import dataaccess.userdatabase.User;
+import dataaccess.authdatabase.*;
+import dataaccess.gamedatabase.*;
 import spark.Request;
 import spark.Response;
 

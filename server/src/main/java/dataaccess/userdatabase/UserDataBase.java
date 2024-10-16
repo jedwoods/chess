@@ -1,13 +1,13 @@
-package dataAccess.userDataBase;
+package dataaccess.userdatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class UserDataBase implements UserDataInterface{
-  List<User> Users;
+  List<User> users;
   public UserDataBase(){
-    Users= new ArrayList<>();
+    users= new ArrayList<>();
 
   }
 
@@ -19,7 +19,7 @@ public class UserDataBase implements UserDataInterface{
 
   @Override
   public User get(String username) {
-    for (User currentUser : Users){
+    for (User currentUser : users){
       if( Objects.equals(username, currentUser.username())){
         return currentUser;
       }
@@ -29,16 +29,16 @@ public class UserDataBase implements UserDataInterface{
 
   @Override
   public void add(User currentUser) {
-    for (var user : Users){
+    for (var user : users){
       if (Objects.equals(user.username(), currentUser.username()) || Objects.equals(user.email(), currentUser.email()) || Objects.equals(user.password(), currentUser.password())){
         return;
       }
     }
-    Users.add(currentUser);
+    users.add(currentUser);
   }
 
   @Override
   public int size() {
-    return Users.size();
+    return users.size();
   }
 }

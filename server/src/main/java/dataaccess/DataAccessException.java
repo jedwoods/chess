@@ -1,4 +1,4 @@
-package dataAccess;
+package dataaccess;
 
 /**
  * Indicates there was an error connecting to the database
@@ -12,7 +12,7 @@ public class DataAccessException extends Exception{
         this.message = message;
     }
 
-    public int StatusCode() {return statusCode;
+    public int statusCode() {return statusCode;
     }
 
     public String getMessage(){

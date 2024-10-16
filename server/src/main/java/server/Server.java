@@ -1,6 +1,6 @@
 package server;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import spark.*;
 
 public class Server {
@@ -34,7 +34,7 @@ public class Server {
     }
 
     private Object exceptionHandler(DataAccessException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.statusCode());
 //        return new Gson().toJson(ex);
         return new Gson().toJson(ex);
 

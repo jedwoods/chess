@@ -1,7 +1,7 @@
-package dataAccess.userDataBase;
+package dataaccess.userdatabase;
 
 public interface UserDataInterface {
-  public User get(String Username);
+  public User get(String username);
   public void remove(String username);
   public void add(User currentUser);
   public int size();
