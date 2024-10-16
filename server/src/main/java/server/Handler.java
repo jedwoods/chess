@@ -148,7 +148,8 @@ public class Handler {
       return new Gson().toJson(new EmptyMessage());
     } else if (blackBool && currentGame.blackUsername() == null) {
       dataAccess.removeGame(currentGame);
-      dataAccess.reAddGame(new GameData(currentGame.gameID(),  currentGame.whiteUsername(), newUsername, currentGame.gameName(), currentGame.game() ) );
+      GameData newGame = new GameData(currentGame.gameID(),currentGame.whiteUsername(),newUsername,currentGame.gameName(),currentGame.game());
+      dataAccess.reAddGame( newGame);
       return new Gson().toJson(new EmptyMessage());
     } else if (Objects.equals(currentUser.playerColor(), "")) {
       return new Gson().toJson(new EmptyMessage());
