@@ -91,7 +91,10 @@ public class ChessGame {
 
 
         for (var mv : moves){
-            if (mv.endPosition.getRow() == move.endPosition.getRow() && mv.endPosition.getColumn() == move.endPosition.getColumn() && mv.promotionPiece == null){
+            int thisCol = mv.endPosition.getColumn();
+            int thisRow = mv.endPosition.getRow();
+            int nextRow = move.endPosition.getRow();
+            if (thisRow == nextRow && thisCol == move.endPosition.getColumn() && mv.promotionPiece == null){
                 board.addPiece(move.endPosition, board.getPiece(move.startPosition));
                 board.addPiece(move.startPosition, null);
                 if (currentTeam == TeamColor.WHITE){
