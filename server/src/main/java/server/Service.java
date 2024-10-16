@@ -6,11 +6,18 @@ import dataaccess.DataAccess;
 import dataaccess.authdatabase.AuthToken;
 import dataaccess.userdatabase.*;
 
+
+
+
 public class Service {
   DataAccess dataAccess;
 
   public Service(){
     dataAccess= new DataAccess();
+  }
+
+  public void setDataAccess(DataAccess db){
+    dataAccess = db;
   }
 
   public Object clear(){

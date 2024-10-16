@@ -14,21 +14,20 @@ import java.util.Map;
 
 
 public class Handler {
+  Service service;
   DataAccess dataAccess;
-//  Service service;
-  public Handler(){
-    dataAccess= new DataAccess();
-//    service = new Service();
-  }
 
+  public Handler(){
+    this.service = new Service();
+    this.dataAccess = service.dataAccess;
+  }
 
   public Object clear(Request req, Response res) throws DataAccessException {
     try {
 
-      dataAccess.clear();
-      assert dataAccess.isEmpty();
+      service.clear();
+      assert service.dataAccess.isEmpty();
       res.type("applications/json");
-
       return new Gson().toJson(new EmptyMessage());
     } catch (Exception e) {
       res.status(500);
