@@ -39,26 +39,13 @@ public class Handler {
   public Object register(Request req, Response res) throws DataAccessException {
     String bodyStuff = req.body();
     User newuser = new Gson().fromJson(bodyStuff, User.class);
-    if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
-      res.status(400);
-      res.body("Error: Bad Request");
-      return new Gson().toJson(new ErrorMessage("Error: Bad Request"));
-    }
-
-    User usercheck = dataAccess.userCheck(newuser.username());
-    if (usercheck != null){
-      res.status(403);
-      res.body("Error: Forbidden Unauthorized");
+    try {
+      return new Gson().toJson(service.register(newuser));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
       return new Gson().toJson(new ErrorMessage("Error: Forbidden Unauthorized"));
-
     }
-    dataAccess.addUser(newuser);
-    AuthToken token = dataAccess.makeToken(newuser.username());
-    dataAccess.addToken(token);
 
-    res.type("applications/json");
-//    res.body(new Gson().toJson(newToken));
-    return new Gson().toJson(token);
   }
 
 
@@ -66,13 +53,13 @@ public class Handler {
     String bodyStuff = req.body();
     String token = req.headers("Authorization");
     String gameName = new Gson().fromJson(bodyStuff, GameData.class).gameName();
-    if (dataAccess.confirmSession(token)){
-      GameData game = dataAccess.addGame(gameName);
-      res.body(String.valueOf(game.gameID()));
-      return new Gson().toJson(new GameResponse(game.gameID()));
+
+    try {
+      return new Gson().toJson(service.newGame(token, gameName));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
+      return new Gson().toJson(new ErrorMessage(e.getMessage()));
     }
-    res.status(401);
-    return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
   }
 
 
@@ -91,70 +78,37 @@ public class Handler {
   public Object login(Request req, Response res){
     String bodyStuff = req.body();
     User currentUser =  new Gson().fromJson(bodyStuff, User.class);
-    if (dataAccess.userCheck(currentUser.username()) == null){
-      res.status(401);
-      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
+    try {
+      return new Gson().toJson(service.login(currentUser));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
+      return new Gson().toJson(new ErrorMessage(e.getMessage()));
     }
 
-    String userPassword = dataAccess.getUser(currentUser.username()).password();
-    if (!Objects.equals(userPassword, currentUser.password())){
-      res.status(401);
-      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request, bad password"));
-    }
-    currentUser = dataAccess.getUser(currentUser.username());
-    AuthToken token = dataAccess.makeToken(currentUser.username());
-    dataAccess.addToken(token);
-    return new Gson().toJson(token);
   }
 
 
-  public Object listGames(Request req, Response res){
-    String token = req.headers("Authorization");
-    if (!dataAccess.confirmSession(token)){
-      res.status(401);
-      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
+  public Object listGames(Request req, Response res) {
+    String token=req.headers("Authorization");
+    try {
+      return new Gson().toJson(service.listGames(token));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
+      return new Gson().toJson(new ErrorMessage(e.getMessage()));
     }
-
-    return new Gson().toJson(Map.of("games", new HashSet<>(dataAccess.listGames())));}
+  }
 
 
   public Object joinGame(Request req, Response res){
     String token = req.headers("Authorization");
-
-    if (!dataAccess.confirmSession(token)){
-      res.status(401);
-      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
-    }
-
-    String newUsername = dataAccess.getSession(token).username();
     String bodyStuff = req.body();
     JoinRequest currentUser =  new Gson().fromJson(bodyStuff, JoinRequest.class);
-
-    GameData currentGame = dataAccess.getGame(currentUser.gameID());
-    if (currentGame == null){
-      res.status(400);
-      return new Gson().toJson(new ErrorMessage("Error: bad request"));
+    try {
+      return new Gson().toJson(service.joinGame(token, currentUser));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
+      return new Gson().toJson(new ErrorMessage(e.getMessage()));
     }
-    boolean blackBool = Objects.equals(currentUser.playerColor(), "BLACK");
-    boolean whiteBool = Objects.equals(currentUser.playerColor(), "WHITE");
-    if (!blackBool && !whiteBool && !Objects.equals(currentUser.playerColor(), "")){
-      res.status(400);
-      return new Gson().toJson(new ErrorMessage("Error: Not an actual color"));
-    }
-    if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
-      dataAccess.removeGame(currentGame);
-      dataAccess.reAddGame(new GameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
-      return new Gson().toJson(new EmptyMessage());
-    } else if (blackBool && currentGame.blackUsername() == null) {
-      dataAccess.removeGame(currentGame);
-      GameData newGame = new GameData(currentGame.gameID(),currentGame.whiteUsername(),newUsername,currentGame.gameName(),currentGame.game());
-      dataAccess.reAddGame( newGame);
-      return new Gson().toJson(new EmptyMessage());
-    } else if (Objects.equals(currentUser.playerColor(), "")) {
-      return new Gson().toJson(new EmptyMessage());
-    }
-    res.status(403);
-    return new Gson().toJson(new ErrorMessage("Error: Already taken Forbidden"));
   }
 
 
