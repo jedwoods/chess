@@ -20,6 +20,9 @@ public class Service {
     dataAccess= new DataAccess();
   }
 
+  public DataAccess getDB(){
+    return this.dataAccess;
+  }
 
   public void clear(){
     dataAccess.clear();
@@ -56,7 +59,6 @@ public class Service {
   public Object joinGame(String token, JoinRequest currentUser) throws DataAccessException {
     if (!dataAccess.confirmSession(token)){
       throw new DataAccessException(401,"Error: unauthorized bad request");
-
     }
 
     String newUsername = dataAccess.getSession(token).username();

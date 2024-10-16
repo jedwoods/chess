@@ -15,11 +15,10 @@ import java.util.Map;
 
 public class Handler {
   Service service;
-  DataAccess dataAccess;
 
   public Handler(){
     this.service = new Service();
-    this.dataAccess = service.dataAccess;
+
   }
 
   public Object clear(Request req, Response res) throws DataAccessException {
@@ -65,13 +64,12 @@ public class Handler {
 
   public Object logout(Request req, Response res){
     String token = req.headers("Authorization");
-    if (!dataAccess.confirmSession(token)){
-      res.status(401);
-      return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
+    try {
+      return new Gson().toJson(service.logout(token));
+    }catch (DataAccessException e){
+      res.status(e.statusCode());
+      return new Gson().toJson(new ErrorMessage(e.getMessage()));
     }
-    dataAccess.logout(token);
-    res.body("");
-    return new Gson().toJson(new EmptyMessage());
   }
 
 

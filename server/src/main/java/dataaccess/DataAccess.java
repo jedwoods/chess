@@ -86,6 +86,8 @@ public class DataAccess {
 
   }
 
+
+
 public boolean isEmpty(){
     return games.size() == 0 && users.size() == 0 && sessions.size() == 0;
 }

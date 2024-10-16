@@ -4,8 +4,7 @@ import dataaccess.DataAccessException;
 import spark.*;
 
 public class Server {
-    Handler service = new Handler();
-    newHandler newService = new newHandler();
+    Handler handler= new Handler();
 
 
     public int run(int desiredPort) {
@@ -15,13 +14,13 @@ public class Server {
         // Register your endpoints and handle exceptions here.
 
 
-        Spark.delete("/db", service::clear);
-        Spark.post("/user", service::register);
-        Spark.post("/game", service::newGame);
-        Spark.delete("/session", service::logout);
-        Spark.post("/session", service::login);
-        Spark.get("/game", service::listGames);
-        Spark.put("/game",service::joinGame);
+        Spark.delete("/db", handler::clear);
+        Spark.post("/user", handler::register);
+        Spark.post("/game", handler::newGame);
+        Spark.delete("/session", handler::logout);
+        Spark.post("/session", handler::login);
+        Spark.get("/game", handler::listGames);
+        Spark.put("/game", handler::joinGame);
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 

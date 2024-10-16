@@ -24,7 +24,7 @@ public class GameDataBase implements GameInterface {
   public GameData get(Integer currentID) {
     for (var gameObj : gameStorage){
       if (Objects.equals(gameObj.gameID(), currentID)){
-        gameStorage.remove(gameObj);
+//        gameStorage.remove(gameObj);
         return gameObj;
       }
     }
