@@ -29,9 +29,6 @@ public class Service {
     User usercheck = dataAccess.userCheck(newuser.username());
     if (usercheck != null){
       throw new DataAccessException(403, "Forbidden unauthorized");
-//      res.status(403);
-//      res.body("Error: Forbidden Unauthorized");
-//      return new Gson().toJson(new ErrorMessage("Error: Forbidden Unauthorized"));
 
     }
     dataAccess.addUser(newuser);
