@@ -1,53 +1,51 @@
-package dataaccess;
+package dataAccess;
 
 
 
 import chess.ChessGame;
-import dataaccess.GameDataBase.*;
-import dataaccess.UserDataBase.*;
-import dataaccess.authDataBase.*;
+import dataAccess.userDataBase.*;
+import dataAccess.gameDataBase.*;
+import dataAccess.authDataBase.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
 
 public class DataAccess {
-  authDataBase sessions;
+  AuthDataBase sessions;
   GameDataBase games;
-  userDataBase users;
+  UserDataBase users;
   int gameNum;
 
   public DataAccess(){
-    this.sessions = new authDataBase();
+    this.sessions = new AuthDataBase();
     this.games = new GameDataBase();
-    this.users = new userDataBase();
+    this.users = new UserDataBase();
     this.gameNum = 1;
   }
 
   public void clear(){
-    sessions = new authDataBase();
+    sessions = new AuthDataBase();
     games = new GameDataBase();
-    users = new userDataBase();
+    users = new UserDataBase();
   }
 
 
-  public user userCheck(String userName){
+  public User userCheck(String userName){
     return users.get(userName);
   }
 
-  public void addUser(user newUser){
+  public void addUser(User newUser){
     users.add(newUser);
   }
 
-  public user getUser(String username){
+  public User getUser(String username){
     return users.get(username);
   }
 
-  public authToken makeToken(String userName){
+  public AuthToken makeToken(String userName){
     return sessions.newSession(userName);
   }
 
-  public void addToken(authToken token){
+  public void addToken(AuthToken token){
     sessions.add(token);
   }
 
@@ -55,18 +53,18 @@ public class DataAccess {
     return sessions.get(token) != null;
   }
 
-  public gameData addGame(String gameName){
-    gameData game = new gameData(gameNum, null, null, gameName, new ChessGame());
+  public GameData addGame(String gameName){
+    GameData game = new GameData(gameNum, null, null, gameName, new ChessGame());
     games.add(game);
     gameNum += 1;
     return game;
   }
 
-  public void reAddGame(gameData game){
+  public void reAddGame(GameData game){
     games.add(game);
   }
 
-  public void removeGame(gameData game){
+  public void removeGame(GameData game){
     games.remove(game.gameID());
   }
 
@@ -75,15 +73,15 @@ public class DataAccess {
     sessions.remove(token);
   }
 
-  public ArrayList<gameData> listGames(){
+  public ArrayList<GameData> listGames(){
     return games.listGames();
   }
 
-  public gameData getGame(int gameID){
+  public GameData getGame(int gameID){
     return games.get(gameID);
   }
 
-  public authToken getSession(String token){
+  public AuthToken getSession(String token){
     return sessions.get(token);
 
   }

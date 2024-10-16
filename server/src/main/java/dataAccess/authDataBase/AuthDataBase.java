@@ -1,12 +1,12 @@
-package dataaccess.authDataBase;
+package dataAccess.authDataBase;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
 
-public class authDataBase implements dbClass<authToken, String> {
-  ArrayList<authToken> tokenCollection = new ArrayList<>();
+public class AuthDataBase implements DataBaseInterface<AuthToken, String> {
+  ArrayList<AuthToken> tokenCollection = new ArrayList<>();
 
   @Override
   public void remove(String authToken) {
@@ -14,7 +14,7 @@ public class authDataBase implements dbClass<authToken, String> {
   }
 
   @Override
-  public authToken get(String authToken) {
+  public AuthToken get(String authToken) {
     for (var obj : tokenCollection){
       if (Objects.equals(obj.authToken(), authToken)){
         return obj;
@@ -24,7 +24,7 @@ public class authDataBase implements dbClass<authToken, String> {
   }
 
   @Override
-  public void add(authToken token) {
+  public void add(AuthToken token) {
     tokenCollection.add(token);
 
   }
@@ -34,8 +34,8 @@ public class authDataBase implements dbClass<authToken, String> {
     return tokenCollection.size();
   }
 
-  public authToken newSession(String username){
-    return new authToken(username, UUID.randomUUID().toString());
+  public AuthToken newSession(String username){
+    return new AuthToken(username, UUID.randomUUID().toString());
 
 
   }

@@ -1,10 +1,10 @@
 package server;
-import dataaccess.*;
+import dataAccess.*;
 import com.google.gson.*;
 
-import dataaccess.UserDataBase.user;
-import dataaccess.authDataBase.*;
-import dataaccess.GameDataBase.*;
+import dataAccess.userDataBase.User;
+import dataAccess.authDataBase.*;
+import dataAccess.gameDataBase.*;
 import spark.Request;
 import spark.Response;
 
@@ -39,14 +39,14 @@ public class Handler {
 
   public Object register(Request req, Response res) throws DataAccessException {
     String bodyStuff = req.body();
-    user newuser = new Gson().fromJson(bodyStuff, user.class);
+    User newuser = new Gson().fromJson(bodyStuff, User.class);
     if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
       res.status(400);
       res.body("Error: Bad Request");
       return new Gson().toJson(new ErrorMessage("Error: Bad Request"));
     }
 
-    user usercheck = dataAccess.userCheck(newuser.username());
+    User usercheck = dataAccess.userCheck(newuser.username());
     if (usercheck != null){
       res.status(403);
       res.body("Error: Forbidden Unauthorized");
@@ -54,7 +54,7 @@ public class Handler {
 
     }
     dataAccess.addUser(newuser);
-    authToken token = dataAccess.makeToken(newuser.username());
+    AuthToken token = dataAccess.makeToken(newuser.username());
     dataAccess.addToken(token);
 
     res.type("applications/json");
@@ -66,9 +66,9 @@ public class Handler {
   public Object newGame(Request req, Response res) throws DataAccessException{
     String bodyStuff = req.body();
     String token = req.headers("Authorization");
-    String gameName = new Gson().fromJson(bodyStuff, gameData.class).gameName();
+    String gameName = new Gson().fromJson(bodyStuff, GameData.class).gameName();
     if (dataAccess.confirmSession(token)){
-      gameData game = dataAccess.addGame(gameName);
+      GameData game = dataAccess.addGame(gameName);
       res.body(String.valueOf(game.gameID()));
       return new Gson().toJson(new GameResponse(game.gameID()));
     }
@@ -91,7 +91,7 @@ public class Handler {
 
   public Object login(Request req, Response res){
     String bodyStuff = req.body();
-    user currentUser =  new Gson().fromJson(bodyStuff, user.class);
+    User currentUser =  new Gson().fromJson(bodyStuff, User.class);
     if (dataAccess.userCheck(currentUser.username()) == null){
       res.status(401);
       return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request"));
@@ -103,7 +103,7 @@ public class Handler {
       return new Gson().toJson(new ErrorMessage("Error: unauthorized bad request, bad password"));
     }
     currentUser = dataAccess.getUser(currentUser.username());
-    authToken token = dataAccess.makeToken(currentUser.username());
+    AuthToken token = dataAccess.makeToken(currentUser.username());
     dataAccess.addToken(token);
     return new Gson().toJson(token);
   }
@@ -129,9 +129,9 @@ public class Handler {
 
     String newUsername = dataAccess.getSession(token).username();
     String bodyStuff = req.body();
-    joinRequest currentUser =  new Gson().fromJson(bodyStuff, joinRequest.class);
+    JoinRequest currentUser =  new Gson().fromJson(bodyStuff, JoinRequest.class);
 
-    gameData currentGame = dataAccess.getGame(currentUser.gameID());
+    GameData currentGame = dataAccess.getGame(currentUser.gameID());
     if (currentGame == null){
       res.status(400);
       return new Gson().toJson(new ErrorMessage("Error: bad request"));
@@ -144,11 +144,11 @@ public class Handler {
 
     if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
       dataAccess.removeGame(currentGame);
-      dataAccess.reAddGame(new gameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
+      dataAccess.reAddGame(new GameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
       return new Gson().toJson(new EmptyMessage());
     } else if (Objects.equals(currentUser.playerColor(), "BLACK") && currentGame.blackUsername() == null) {
       dataAccess.removeGame(currentGame);
-      dataAccess.reAddGame(new gameData(currentGame.gameID(),  currentGame.whiteUsername(), newUsername, currentGame.gameName(), currentGame.game() ) );
+      dataAccess.reAddGame(new GameData(currentGame.gameID(),  currentGame.whiteUsername(), newUsername, currentGame.gameName(), currentGame.game() ) );
       return new Gson().toJson(new EmptyMessage());
     } else if (Objects.equals(currentUser.playerColor(), "")) {
       return new Gson().toJson(new EmptyMessage());

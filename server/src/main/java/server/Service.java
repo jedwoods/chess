@@ -1,11 +1,10 @@
 package server;
-import dataaccess.*;
+import dataAccess.*;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccess;
-import dataaccess.authDataBase.authToken;
-import dataaccess.UserDataBase.*;
-import org.eclipse.jetty.server.Authentication;
+import dataAccess.DataAccess;
+import dataAccess.authDataBase.AuthToken;
+import dataAccess.userDataBase.*;
 
 public class Service {
   DataAccess dataAccess;
@@ -21,13 +20,13 @@ public class Service {
 
   }
 
-  public Object register(user newuser) throws DataAccessException {
+  public Object register(User newuser) throws DataAccessException {
 
     if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
       throw new DataAccessException(400, ("invalid information"));
     }
 
-    user usercheck = dataAccess.userCheck(newuser.username());
+    User usercheck = dataAccess.userCheck(newuser.username());
     if (usercheck != null){
       throw new DataAccessException(403, "Forbidden unauthorized");
 //      res.status(403);
@@ -36,7 +35,7 @@ public class Service {
 
     }
     dataAccess.addUser(newuser);
-    authToken token = dataAccess.makeToken(newuser.username());
+    AuthToken token = dataAccess.makeToken(newuser.username());
     dataAccess.addToken(token);
     return token;
   }

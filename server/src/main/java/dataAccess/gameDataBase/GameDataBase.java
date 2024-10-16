@@ -1,10 +1,10 @@
-package dataaccess.GameDataBase;
+package dataAccess.gameDataBase;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameDataBase implements GameInterface {
-  ArrayList<gameData> gameStorage;
+  ArrayList<GameData> gameStorage;
 
   public GameDataBase(){
     gameStorage = new ArrayList<>();
@@ -21,7 +21,7 @@ public class GameDataBase implements GameInterface {
 
 
   @Override
-  public gameData get(Integer currentID) {
+  public GameData get(Integer currentID) {
     for (var gameObj : gameStorage){
       if (Objects.equals(gameObj.gameID(), currentID)){
         gameStorage.remove(gameObj);
@@ -33,7 +33,7 @@ public class GameDataBase implements GameInterface {
 
 
   @Override
-  public void add(gameData token) {
+  public void add(GameData token) {
     gameStorage.add(token);
   }
 
@@ -45,7 +45,7 @@ public class GameDataBase implements GameInterface {
 
 
   @Override
-  public ArrayList<gameData> listGames(){
+  public ArrayList<GameData> listGames(){
     return gameStorage;
   }
 

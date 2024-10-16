@@ -1,6 +1,6 @@
 package server;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataAccess.DataAccessException;
 import spark.*;
 
 public class Server {

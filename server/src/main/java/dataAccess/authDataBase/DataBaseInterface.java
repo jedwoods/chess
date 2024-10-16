@@ -1,6 +1,6 @@
-package dataaccess.authDataBase;
+package dataAccess.authDataBase;
 
-public interface dbClass<S, T> {
+public interface DataBaseInterface<S, T> {
 
 
   public void remove(T tokenType);
