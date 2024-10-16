@@ -104,7 +104,7 @@ public class ChessGame {
                 }
                 return;
             }
-            if (mv.endPosition.getRow() == move.endPosition.getRow() && mv.endPosition.getColumn() == move.endPosition.getColumn() && mv.promotionPiece == move.promotionPiece){
+            if (thisRow == nextRow && thisCol == move.endPosition.getColumn() && mv.promotionPiece == move.promotionPiece){
                 var piece = board.getPiece(move.startPosition);
                 var color = piece.getTeamColor();
                 var promotion = mv.getPromotionPiece();
