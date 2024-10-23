@@ -11,6 +11,7 @@ public interface DataBaseInterface<S, T> {
   public void add(S token);
 
 
+
   public int size();
 
 }
