@@ -9,6 +9,7 @@ import dataaccess.authdatabase.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class DataAccess implements DataAccessInterface{
 //  AuthDataBase sessions;
@@ -59,7 +60,8 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public AuthToken makeToken(String userName){
-    return sessions.newSession(userName);
+    return new AuthToken(userName, UUID.randomUUID().toString());
+//    return sessions.newSession(userName);
   }
 
   public void addToken(AuthToken token){
@@ -110,7 +112,7 @@ public boolean isEmpty(){
 }
 
 
-  private final String[] createStatements = {"""
+private final String[] createStatements = {"""
           CREATE TABLE IF NOT EXISTS users (
           'username' varchar(256) NOT NULL,
           'password' varchar(256) NOT NULL,
@@ -120,26 +122,28 @@ public boolean isEmpty(){
           """,
           """
           CREATE TABLE IF NOT EXISTS games (
-          'gameID' int NOT NULL,
+          'gameID' int NOT NULL AUTOINCREMENT,
           'whiteUsername' DEFAULT NULL,
           'blackUsername' DEFAULT NULL,
           'gameName' varchar(256) NOT NULL,
           'game' text NOT NULL,
-          PRIMARY KEY 'gameName',
+          PRIMARY KEY (gameName),
           INDEX(gameName),
-          INDEX(gameID),
+          INDEX(gameID)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """
           CREATE TABLE IF NOT EXISTS authData (
           'authtoken' varchar(256) NOT NULL,
           'username' varchar(256) NOT NULL,
-          PRIMARY KEY 'authtoken'
+          `json` TEXT DEFAULT NULL,
+          PRIMARY KEY (authtoken)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """
   };
 
   private void configureDataBase() throws DataAccessException {
+    DatabaseManager.createDatabase();
     try(var conn = DatabaseManager.getConnection()) {
       for (var statement : createStatements) {
         try (var preparedStatement = conn.prepareStatement(statement)) {

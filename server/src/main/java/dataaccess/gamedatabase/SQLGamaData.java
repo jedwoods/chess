@@ -3,6 +3,10 @@ package dataaccess.gamedatabase;
 import java.util.ArrayList;
 
 public class SQLGamaData implements GameInterface{
+
+
+
+
   @Override
   public void remove(Integer currentID) {
 
@@ -15,6 +19,8 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public void add(GameData token) {
+
+
 
   }
 
