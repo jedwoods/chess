@@ -11,7 +11,7 @@ import dataaccess.userdatabase.UserDataBase;
 import java.util.ArrayList;
 
 public interface DataAccessInterface {
-  public void clear();
+  public void clear() throws DataAccessException;
 
   public User userCheck(String userName);
 

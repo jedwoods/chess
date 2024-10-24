@@ -36,7 +36,6 @@ public class AuthDataBase implements DataBaseInterface<AuthToken, String> {
 
   public AuthToken newSession(String username){
     return new AuthToken(username, UUID.randomUUID().toString());
-
   }
 
 }

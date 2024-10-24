@@ -18,10 +18,6 @@ public class DataAccess implements DataAccessInterface{
   SQLUserData users;
   SQLGamaData games;
   SQLAuthData sessions;
-
-
-
-
   int gameNum;
 
   public DataAccess(){
@@ -40,7 +36,7 @@ public class DataAccess implements DataAccessInterface{
     }
   }
 
-  public void clear(){
+  public void clear() throws DataAccessException {
     sessions.clear();
     users.clear();
     games.clear();
@@ -114,29 +110,30 @@ public boolean isEmpty(){
 
 private final String[] createStatements = {"""
           CREATE TABLE IF NOT EXISTS users (
-          'username' varchar(256) NOT NULL,
-          'password' varchar(256) NOT NULL,
-          'email' varchar(256) NOT NULL,
+          username varchar(256) NOT NULL,
+          password varchar(256) NOT NULL,
+          email varchar(256) NOT NULL,
+          json text default NULL,
           PRIMARY KEY (username)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """
           CREATE TABLE IF NOT EXISTS games (
-          'gameID' int NOT NULL AUTOINCREMENT,
-          'whiteUsername' DEFAULT NULL,
-          'blackUsername' DEFAULT NULL,
-          'gameName' varchar(256) NOT NULL,
-          'game' text NOT NULL,
+          gameID int NOT NULL AUTO_INCREMENT,
+          whiteUsername varchar(256) DEFAULT NULL,
+          blackUsername varchar(256) DEFAULT NULL,
+          gameName varchar(256) NOT NULL,
+          jsongame text NOT NULL,
           PRIMARY KEY (gameName),
           INDEX(gameName),
           INDEX(gameID)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """
-          CREATE TABLE IF NOT EXISTS authData (
-          'authtoken' varchar(256) NOT NULL,
-          'username' varchar(256) NOT NULL,
-          `json` TEXT DEFAULT NULL,
+          CREATE TABLE IF NOT EXISTS authdata (
+          authtoken varchar(256) NOT NULL,
+          username varchar(256) NOT NULL,
+          json TEXT DEFAULT NULL,
           PRIMARY KEY (authtoken)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """

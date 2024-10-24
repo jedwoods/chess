@@ -25,7 +25,11 @@ public class Service {
   }
 
   public void clear(){
-    dataAccess.clear();
+    try {
+      dataAccess.clear();
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
     assert dataAccess.isEmpty();
 //    return new Gson().toJson(new EmptyMessage());
   }
