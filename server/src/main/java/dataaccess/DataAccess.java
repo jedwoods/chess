@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class DataAccess implements DataAccessInterface{
-//  AuthDataBase sessions;
-//  GameDataBase games;
-//  UserDataBase users;
   SQLUserData users;
   SQLGamaData games;
   SQLAuthData sessions;
@@ -54,7 +51,7 @@ public class DataAccess implements DataAccessInterface{
 
   public AuthToken makeToken(String userName){
     return new AuthToken(userName, UUID.randomUUID().toString());
-//    return sessions.newSession(userName);
+
   }
 
   public void addToken(AuthToken token){
@@ -81,7 +78,7 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public void logout(String token){
-//    authToken currentToken = sessions.get(token);
+
     sessions.remove(token);
   }
 
