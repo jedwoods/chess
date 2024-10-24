@@ -20,20 +20,20 @@ class DataAccessTest {
   void clear() throws DataAccessException {
     User newUser = new User("girl", "password", "@gmail");
     service.register(newUser);
-    service.clear();
+    dataAccess.clear();
     assert dataAccess.isEmpty();
   }
 
   @Test
-  void notClear(){
-    service.clear();
+  void notClear() throws DataAccessException {
+    dataAccess.clear();
     User newUser = new User("girl", null, "@gmail");
     assertThrows(DataAccessException.class, () -> service.register(newUser));
   }
 
   @Test
   void userCheck() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User newUser = new User("girl", "password", "@gmail");
     service.register(newUser);
     assertEquals(newUser.username(), dataAccess.userCheck(newUser.username()).username());
@@ -43,20 +43,20 @@ class DataAccessTest {
 
   @Test
   void addUser() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User newUser = new User("girl", "password", "@gmail");
     service.register(newUser);
     assert !dataAccess.isEmpty();
-    service.clear();
+    dataAccess.clear();
   }
 
   @Test
   void getUser() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User newUser = new User("newBoy", "password", "@gmail");
     service.register(newUser);
     assertEquals(newUser.username(), dataAccess.getUser(newUser.username()).username());
-    service.clear();
+    dataAccess.clear();
   }
 
   @Test
@@ -73,16 +73,16 @@ class DataAccessTest {
 
 
   @Test
-  void addToken() {
-    service.clear();
+  void addToken() throws DataAccessException {
+    dataAccess.clear();
     User newUser = new User("newBoy", "password", "@gmail");
     dataAccess.addToken(dataAccess.makeToken(newUser.username()));
     assert !dataAccess.isEmpty();
   }
 
   @Test
-  void addTwoTokens(){
-    service.clear();
+  void addTwoTokens() throws DataAccessException {
+    dataAccess.clear();
     User newUser = new User("newBoy", "password", "@gmail");
     User secondusesr = new User("newBoy", null, "@gmail");
     dataAccess.addToken(dataAccess.makeToken(newUser.username()));
@@ -91,8 +91,8 @@ class DataAccessTest {
   }
 
   @Test
-  void addbadTokens(){
-    service.clear();
+  void addbadTokens() throws DataAccessException {
+    dataAccess.clear();
     User secondusesr = new User("newBoy", null, "@gmail");
     if (dataAccess.makeToken(secondusesr.username()) == null){
     dataAccess.addToken(dataAccess.makeToken(secondusesr.username()));}
@@ -104,8 +104,8 @@ class DataAccessTest {
 
 
   @Test
-  void confirmSession() {
-    service.clear();
+  void confirmSession() throws DataAccessException {
+    dataAccess.clear();
     User newUser = new User("newBoy", "password", "@gmail");
     AuthToken token = dataAccess.makeToken(newUser.username());
     dataAccess.addToken(token);
@@ -115,7 +115,7 @@ class DataAccessTest {
 
   @Test
   void addGame() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
@@ -124,7 +124,7 @@ class DataAccessTest {
 
   @Test
   void reAddGame() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
@@ -137,7 +137,7 @@ class DataAccessTest {
 
   @Test
   void removeGame() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
@@ -148,7 +148,7 @@ class DataAccessTest {
 
   @Test
   void logout() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     dataAccess.logout(token.authToken());
@@ -156,15 +156,15 @@ class DataAccessTest {
   }
 
   @Test
-  void invalidLogout(){
-    service.clear();
+  void invalidLogout() throws DataAccessException {
+    dataAccess.clear();
     dataAccess.logout("invalid token");
     assert dataAccess.isEmpty();
   }
 
   @Test
   void listGames() throws DataAccessException {
-    this.service.clear();
+    dataAccess.clear();
     User newUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(newUser);
     service.newGame(token.authToken(), "new game");
@@ -176,7 +176,7 @@ class DataAccessTest {
 
   @Test
   void getGame() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
@@ -187,8 +187,8 @@ class DataAccessTest {
 
 
   @Test
-  void nullUserLogin(){
-    service.clear();
+  void nullUserLogin() throws DataAccessException {
+    dataAccess.clear();
     assertNull(dataAccess.getUser("nonanmaasdf"));
   }
 
@@ -196,7 +196,7 @@ class DataAccessTest {
 
   @Test
   void getSession() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     assertEquals(dataAccess.getSession(token.authToken()), token);
@@ -205,15 +205,15 @@ class DataAccessTest {
 
 
   @Test
-  void isEmpty() {
-    service.clear();
+  void isEmpty() throws DataAccessException {
+    dataAccess.clear();
     assert dataAccess.isEmpty();
   }
 
 
   @Test
   void notEmpty() throws DataAccessException {
-    service.clear();
+    dataAccess.clear();
     User newUser = new User("girl", "password", "@gmail");
     service.register(newUser);
     assert !dataAccess.isEmpty();
