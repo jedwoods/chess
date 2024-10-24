@@ -41,7 +41,7 @@ public class DataAccess implements DataAccessInterface{
 
 
   public User userCheck(String userName){
-    return  users.get(userName);
+    return users.get(userName);
   }
 
   public void addUser(User newUser){
