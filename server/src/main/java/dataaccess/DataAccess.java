@@ -21,9 +21,6 @@ public class DataAccess implements DataAccessInterface{
   int gameNum;
 
   public DataAccess(){
-//    this.sessions = new AuthDataBase();
-//    this.games = new GameDataBase();
-//    this.users = new UserDataBase();
 
     this.sessions = new SQLAuthData();
     this.games = new SQLGamaData();
