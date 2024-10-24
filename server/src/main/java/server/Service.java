@@ -35,11 +35,10 @@ public class Service {
   }
 
   public AuthToken register(User newuser) throws DataAccessException {
-    newuser = new User(newuser.username(), BCrypt.hashpw(newuser.password(), BCrypt.gensalt()), newuser.email());
     if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
       throw new DataAccessException(400, ("invalid information"));
     }
-
+    newuser = new User(newuser.username(), BCrypt.hashpw(newuser.password(), BCrypt.gensalt()), newuser.email());
     User usercheck = dataAccess.userCheck(newuser.username());
     if (usercheck != null){
       throw new DataAccessException(403, "Forbidden unauthorized");
@@ -112,7 +111,7 @@ public class Service {
 
     String userPassword = dataAccess.getUser(currentUser.username()).password();
 
-    if (!Objects.equals(userPassword, currentUser.password())){
+    if (!BCrypt.checkpw(currentUser.password(), userPassword)){
       throw new DataAccessException(401,"Error: unauthorized bad request, bad password" );
     }
     currentUser = dataAccess.getUser(currentUser.username());
