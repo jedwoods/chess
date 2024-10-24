@@ -7,7 +7,6 @@ import dataaccess.authdatabase.AuthToken;
 import dataaccess.gamedatabase.GameData;
 import dataaccess.gamedatabase.GameResponse;
 import dataaccess.userdatabase.*;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -15,14 +14,13 @@ import org.mindrot.jbcrypt.*;
 
 public class Service {
   DataAccess dataAccess;
-
   public Service(){
     dataAccess= new DataAccess();
   }
-
   public DataAccess getDB(){
     return this.dataAccess;
   }
+
 
   public void clear(){
     try {
@@ -31,8 +29,8 @@ public class Service {
       throw new RuntimeException(e);
     }
     assert dataAccess.isEmpty();
-//    return new Gson().toJson(new EmptyMessage());
   }
+
 
   public AuthToken register(User newuser) throws DataAccessException {
     if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
@@ -42,13 +40,13 @@ public class Service {
     User usercheck = dataAccess.userCheck(newuser.username());
     if (usercheck != null){
       throw new DataAccessException(403, "Forbidden unauthorized");
-
     }
     dataAccess.addUser(newuser);
     AuthToken token = dataAccess.makeToken(newuser.username());
     dataAccess.addToken(token);
     return token;
   }
+
 
   public GameResponse newGame(String token, String gameName) throws DataAccessException {
     if (dataAccess.confirmSession(token)){
@@ -65,12 +63,9 @@ public class Service {
     }
 
     String newUsername = dataAccess.getSession(token).username();
-
-
     GameData currentGame = dataAccess.getGame(currentUser.gameID());
     if (currentGame == null){
       throw new DataAccessException(400,"Error: bad request" );
-
     }
     boolean blackBool = Objects.equals(currentUser.playerColor(), "BLACK");
     boolean whiteBool = Objects.equals(currentUser.playerColor(), "WHITE");
@@ -94,7 +89,6 @@ public class Service {
   }
 
 
-
   public Map<String, HashSet<GameData>> listGames(String token) throws DataAccessException {
     if (!dataAccess.confirmSession(token)){
       throw new DataAccessException(401,"Error: unauthorized bad request");
@@ -106,11 +100,8 @@ public class Service {
   public AuthToken login(User currentUser) throws DataAccessException {
     if (dataAccess.userCheck(currentUser.username()) == null){
       throw new DataAccessException(401,"Error: unauthorized bad request" );
-
     }
-
     String userPassword = dataAccess.getUser(currentUser.username()).password();
-
     if (!BCrypt.checkpw(currentUser.password(), userPassword)){
       throw new DataAccessException(401,"Error: unauthorized bad request, bad password" );
     }
@@ -120,11 +111,9 @@ public class Service {
     return token;
   }
 
-
   public EmptyMessage logout(String token) throws DataAccessException {
     if (!dataAccess.confirmSession(token)){
       throw new DataAccessException(401,"Error: unauthorized bad request" );
-
     }
     dataAccess.logout(token);
     return new EmptyMessage();

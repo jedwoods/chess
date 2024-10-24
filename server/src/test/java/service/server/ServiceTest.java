@@ -38,7 +38,6 @@ class ServiceTest {
     assert Objects.equals(token.username(), newUser.username());
     assert !this.service.getDB().isEmpty();
     service.clear();
-
   }
 
   @Test
