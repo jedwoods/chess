@@ -1,6 +1,14 @@
 package dataaccess.gamedatabase;
 
+import com.google.gson.Gson;
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
+import dataaccess.authdatabase.AuthToken;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static dataaccess.DatabaseManager.executeUpdate;
 
 public class SQLGamaData implements GameInterface{
 
@@ -9,23 +17,64 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public void remove(Integer currentID) {
+    var statement = "DELETE FROM games WHERE gameID=?";
+    try {
+      executeUpdate(statement, currentID);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
   @Override
   public GameData get(Integer currentID) {
+    try (var conn =DatabaseManager.getConnection()){
+      var statement = "SELECT * FROM games WHERE gameID =?";
+      try (var ps = conn.prepareStatement(statement)){
+        ps.setInt(1, currentID);
+        try (var rs = ps.executeQuery()) {
+          if (rs.next()){
+            return new Gson().fromJson(rs.getString("jsongame"), GameData.class);
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } catch (DataAccessException e) {
+      return null;
+    }
     return null;
   }
 
   @Override
   public void add(GameData token) {
 
-
-
+    var statement = "INSERT INTO games (gameID, gameName, jsongame) VALUES (?, ?, ?)";
+    var json = new Gson().toJson(token);
+    try {
+      var id=executeUpdate(statement, token.gameID(), token.gameName(), json);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public int size() {
+    try (var conn =DatabaseManager.getConnection()){
+      var statement = "SELECT COUNT(*) FROM games";
+      try (var ps = conn.prepareStatement(statement)){
+        try (var rs = ps.executeQuery()) {
+          if (rs.next()){
+            return rs.getInt(1);
+          }
+        }
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e.getMessage());
+    }
     return 0;
   }
 
@@ -36,5 +85,12 @@ public class SQLGamaData implements GameInterface{
 
 
 
-  public void clear(){}
+  public void clear(){
+    var statement = "TRUNCATE games";
+    try {
+      executeUpdate(statement);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

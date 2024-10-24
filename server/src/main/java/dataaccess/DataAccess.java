@@ -119,12 +119,10 @@ private final String[] createStatements = {"""
           """,
           """
           CREATE TABLE IF NOT EXISTS games (
-          gameID int NOT NULL AUTO_INCREMENT,
-          whiteUsername varchar(256) DEFAULT NULL,
-          blackUsername varchar(256) DEFAULT NULL,
+          gameID int NOT NULL,
           gameName varchar(256) NOT NULL,
           jsongame text NOT NULL,
-          PRIMARY KEY (gameName),
+          PRIMARY KEY (gameID),
           INDEX(gameName),
           INDEX(gameID)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

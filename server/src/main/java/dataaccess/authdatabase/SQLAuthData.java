@@ -23,7 +23,7 @@ public class SQLAuthData implements DataBaseInterface<AuthToken, String> {
   @Override
   public AuthToken get(String tokenType) {
     try (var conn =DatabaseManager.getConnection()){
-      var statement = "SELECT * FROM authtoken WHERE authtoken =?";
+      var statement = "SELECT * FROM authdata WHERE authtoken =?";
       try (var ps = conn.prepareStatement(statement)){
         ps.setString(1, tokenType);
         try (var rs = ps.executeQuery()) {
