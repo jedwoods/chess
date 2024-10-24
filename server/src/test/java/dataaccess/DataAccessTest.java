@@ -7,6 +7,9 @@ import dataaccess.userdatabase.User;
 import org.junit.jupiter.api.Test;
 import server.Service;
 
+import java.util.HashSet;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DataAccessTest {
@@ -113,16 +116,43 @@ class DataAccessTest {
     AuthToken token = service.register(validUser);
     dataAccess.logout(token.authToken());
     assertNull(dataAccess.getSession(token.username()));
+  }
+
+  void invalidLogout(){
+    service.clear();
+    dataAccess.logout("invalid token");
+    assert dataAccess.isEmpty();
+  }
+
+  @Test
+  void listGames() throws DataAccessException {
+    this.service.clear();
+    User newUser = new User("girl", "password", "@gmail");
+    AuthToken token = service.register(newUser);
+    service.newGame(token.authToken(), "new game");
+    assert this.service.listGames(token.authToken()).get("games").size() == 1;
+  }
+
+
+
+
+  @Test
+  void getGame() throws DataAccessException {
+    service.clear();
+    User validUser = new User("girl", "password", "@gmail");
+    AuthToken token = service.register(validUser);
+    GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
+    GameData game = dataAccess.getGame(gameResponse.gameID());
+    assertNotNull(dataAccess.getGame(game.gameID()));
 
   }
 
   @Test
-  void listGames() {
+  void nullUserLogin(){
+    service.clear();
+    assertNull(dataAccess.getUser("nonanmaasdf"));
   }
 
-  @Test
-  void getGame() {
-  }
 
   @Test
   void getSession() throws DataAccessException {
@@ -133,11 +163,16 @@ class DataAccessTest {
 
   }
 
+
+
+
   @Test
   void isEmpty() {
     service.clear();
     assert dataAccess.isEmpty();
   }
+
+
   @Test
   void notEmpty() throws DataAccessException {
     service.clear();
