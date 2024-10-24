@@ -32,6 +32,7 @@ class ServiceTest {
 
   @Test
   void register() throws DataAccessException {
+    service.clear();
     User newUser = new User("girl", "password", "@gmail");
     AuthToken token = this.service.register(newUser);
     assert Objects.equals(token.username(), newUser.username());
