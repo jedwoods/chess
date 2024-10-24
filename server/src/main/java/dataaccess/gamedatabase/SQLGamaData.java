@@ -79,8 +79,21 @@ public class SQLGamaData implements GameInterface{
   }
 
   @Override
-  public ArrayList<GameData> listGames() {
-    return null;
+  public ArrayList<GameData> listGames() throws DataAccessException {
+    var result = new ArrayList<GameData>();
+    try (var conn = DatabaseManager.getConnection()) {
+      var statement = "SELECT gameID, jsongame FROM games";
+      try (var ps = conn.prepareStatement(statement)) {
+        try (var rs = ps.executeQuery()) {
+          while (rs.next()) {
+            result.add(new Gson().fromJson(rs.getString("jsongame"), GameData.class));
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+    }
+    return result;
   }
 
 

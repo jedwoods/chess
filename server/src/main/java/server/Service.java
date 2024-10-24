@@ -11,7 +11,7 @@ import dataaccess.userdatabase.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-
+import org.mindrot.jbcrypt.*;
 
 public class Service {
   DataAccess dataAccess;
@@ -35,7 +35,7 @@ public class Service {
   }
 
   public AuthToken register(User newuser) throws DataAccessException {
-
+    newuser = new User(newuser.username(), BCrypt.hashpw(newuser.password(), BCrypt.gensalt()), newuser.email());
     if (newuser.username() == null || newuser.password() == null || newuser.email() == null){
       throw new DataAccessException(400, ("invalid information"));
     }
@@ -111,6 +111,7 @@ public class Service {
     }
 
     String userPassword = dataAccess.getUser(currentUser.username()).password();
+
     if (!Objects.equals(userPassword, currentUser.password())){
       throw new DataAccessException(401,"Error: unauthorized bad request, bad password" );
     }

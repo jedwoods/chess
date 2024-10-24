@@ -89,7 +89,11 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public ArrayList<GameData> listGames(){
-    return games.listGames();
+    try {
+      return games.listGames();
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public GameData getGame(int gameID){

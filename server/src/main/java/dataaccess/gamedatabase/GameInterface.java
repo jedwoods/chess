@@ -1,5 +1,7 @@
 package dataaccess.gamedatabase;
 
+import dataaccess.DataAccessException;
+
 import java.util.ArrayList;
 
 public interface GameInterface {
@@ -8,5 +10,5 @@ public interface GameInterface {
   public void add(GameData token);
   public int size();
 
-  ArrayList<GameData> listGames();
+  ArrayList<GameData> listGames() throws DataAccessException;
 }
