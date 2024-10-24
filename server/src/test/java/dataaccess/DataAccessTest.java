@@ -22,7 +22,13 @@ class DataAccessTest {
     service.register(newUser);
     service.clear();
     assert dataAccess.isEmpty();
+  }
 
+  @Test
+  void notClear(){
+    service.clear();
+    User newUser = new User("girl", null, "@gmail");
+    assertThrows(DataAccessException.class, () -> service.register(newUser));
   }
 
   @Test
@@ -59,12 +65,43 @@ class DataAccessTest {
   }
 
   @Test
+  void MakeToken2(){
+    AuthToken token1 = dataAccess.makeToken("username");
+    AuthToken token2 =  dataAccess.makeToken("other username");
+    assertNotEquals(token1, token2);
+  }
+
+
+  @Test
   void addToken() {
     service.clear();
     User newUser = new User("newBoy", "password", "@gmail");
     dataAccess.addToken(dataAccess.makeToken(newUser.username()));
     assert !dataAccess.isEmpty();
   }
+
+  @Test
+  void addTwoTokens(){
+    service.clear();
+    User newUser = new User("newBoy", "password", "@gmail");
+    User secondusesr = new User("newBoy", null, "@gmail");
+    dataAccess.addToken(dataAccess.makeToken(newUser.username()));
+    dataAccess.addToken(dataAccess.makeToken(secondusesr.username()));
+    assert !dataAccess.isEmpty();
+  }
+
+  @Test
+  void addbadTokens(){
+    service.clear();
+    User secondusesr = new User("newBoy", null, "@gmail");
+    if (dataAccess.makeToken(secondusesr.username()) == null){
+    dataAccess.addToken(dataAccess.makeToken(secondusesr.username()));}
+    assert dataAccess.isEmpty();
+  }
+
+
+
+
 
   @Test
   void confirmSession() {
@@ -118,6 +155,7 @@ class DataAccessTest {
     assertNull(dataAccess.getSession(token.username()));
   }
 
+  @Test
   void invalidLogout(){
     service.clear();
     dataAccess.logout("invalid token");
@@ -144,8 +182,9 @@ class DataAccessTest {
     GameResponse gameResponse = service.newGame(token.authToken(), "our Game");
     GameData game = dataAccess.getGame(gameResponse.gameID());
     assertNotNull(dataAccess.getGame(game.gameID()));
-
   }
+
+
 
   @Test
   void nullUserLogin(){
@@ -154,15 +193,14 @@ class DataAccessTest {
   }
 
 
+
   @Test
   void getSession() throws DataAccessException {
     service.clear();
     User validUser = new User("girl", "password", "@gmail");
     AuthToken token = service.register(validUser);
     assertEquals(dataAccess.getSession(token.authToken()), token);
-
   }
-
 
 
 
