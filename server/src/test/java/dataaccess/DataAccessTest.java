@@ -65,7 +65,7 @@ class DataAccessTest {
   }
 
   @Test
-  void MakeToken2(){
+  void makeToken2(){
     AuthToken token1 = dataAccess.makeToken("username");
     AuthToken token2 =  dataAccess.makeToken("other username");
     assertNotEquals(token1, token2);
