@@ -24,15 +24,13 @@ public class Client {
     }
     return """
                 - list - gets all games
-                - create game <>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
+                - create game <game name>
+                - play game <game ID> [white|black]
+                - observe game <game ID>
                 - signOut
                 - quit
                 """;
   }
-
-
 
 
 
@@ -64,6 +62,16 @@ public class Client {
       result.append(gson.toJson(game)).append('\n');
     }
     return result.toString();
+  }
+
+  public String joinGame(String[] params) throws ResponseException {
+    assertSignedIn();
+    if (params.length == 2) {
+      ResponseObject response = server.joinGame(params[0], params[0]);
+      return "";
+    } else{
+      throw new ResponseException(400, "Expected: <your name> <password>");
+    }
   }
 
 

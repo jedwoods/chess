@@ -32,7 +32,7 @@ public class ServerFacade {
   public void logout() throws ResponseException {
     String path = "/session";
     try {
-      AuthToken user = makeRequest("POST", path,new Gson().toJson(new logoutObject(this.authToken)), null);
+      AuthToken user = makeRequest("DELETE", path,new Gson().toJson(new logoutObject(this.authToken)), null);
       this.authToken = null;
       new ResponseObject(200, "You are now logged out brotha");
     } catch (Exception e){
@@ -50,6 +50,10 @@ public class ServerFacade {
     return response.game();
   }
 
+
+  public ResponseObject joinGame(){
+
+  }
 
 
 
