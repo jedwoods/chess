@@ -10,8 +10,9 @@ import ui.logoutObject;
 
 public class ServerFacade {
   private final String serverUrl;
-  private String authToken;
-  private int joinedGame;
+  private String authToken = null;
+  private String userName;
+//  private int joinedGame;
 
   public ServerFacade ( String serverUrl){
     this.serverUrl=serverUrl;
@@ -21,8 +22,9 @@ public class ServerFacade {
   public ResponseObject login(String username, String password) throws ResponseException {
     String path = "/session";
     try {
-      AuthToken user = makeRequest("POST", path,new User(username, password, null), AuthToken.class );
+      AuthToken user = makeRequest("POST", path,new User(username, password, null), AuthToken.class, this.authToken );
       this.authToken = user.authToken();
+      this.userName = user.username();
       return new ResponseObject(200, "You are now logged in brotha");
     } catch (Exception e){
       throw new ResponseException(500, e.getMessage());
@@ -33,7 +35,7 @@ public class ServerFacade {
   public void logout() throws ResponseException {
     String path = "/session";
     try {
-      AuthToken user = makeRequest("DELETE", path,new Gson().toJson(new logoutObject(this.authToken)), null);
+      AuthToken user = makeRequest("DELETE", path,new Gson().toJson(new logoutObject(this.authToken)), null, this.authToken);
       this.authToken = null;
       new ResponseObject(200, "You are now logged out brotha");
     } catch (Exception e){
@@ -47,31 +49,29 @@ public class ServerFacade {
     var path = "/game";
     record listGameResponse(ChessGame[] game) {
     }
-    var response = this.makeRequest("GET", path, null, listGameResponse.class);
+    var response = this.makeRequest("GET", path, new AuthToken(this.userName, this.authToken), listGameResponse.class, null);
     return response.game();
   }
 
 
   public ResponseObject joinGame(String playerColor, String gameID) throws ResponseException {
     var path = "/game";
-    var method = "PUT";
-    String responseClass = null;
-    record joinGameObject(String Authorization, String playerColor, String gameID) {
+    record joinGameObject(String playerColor, String gameID) {
     }
-    joinedGame = Integer.parseInt(gameID);
-    return this.makeRequest("GET", path, new joinGameObject(authToken, playerColor, gameID), null);
+//    joinedGame = Integer.parseInt(gameID);
+    return this.makeRequest("PUT", path, new joinGameObject(playerColor, gameID), null,this.authToken);
   }
 
 
 
-  private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+  private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String auth) throws ResponseException {
     try {
       URL url = (new URI(serverUrl + path)).toURL();
       HttpURLConnection http = (HttpURLConnection) url.openConnection();
       http.setRequestMethod(method);
       http.setDoOutput(true);
 
-      writeBody(request, http);
+      writeBody(request, http, auth);
 
       http.connect();
       throwIfNotSuccessful(http);
@@ -96,7 +96,10 @@ public class ServerFacade {
     return response;
   }
 
-  private static void writeBody(Object request, HttpURLConnection http) throws IOException {
+  private static void writeBody(Object request, HttpURLConnection http, String auth) throws IOException {
+    if (auth != null){
+      http.setRequestProperty("Authorization", auth);
+    }
     if (request != null) {
       http.addRequestProperty("Content-Type", "application/json");
       String reqData = new Gson().toJson(request);
