@@ -4,10 +4,10 @@ import static ui.EscapeSequences.*;
 
 
 public class Repl {
-  ServerFacade client;
+  Client client;
 
   public Repl(String site){
-    this.client = new ServerFacade(site);
+    this.client = new Client(site);
 
   }
 
