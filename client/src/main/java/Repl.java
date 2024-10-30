@@ -7,7 +7,6 @@ public class Repl {
   ServerFacade client;
 
   public Repl(String site){
-
     this.client = new ServerFacade(site);
 
   }
@@ -37,6 +36,13 @@ public class Repl {
   private void printPrompt() {
     System.out.print("\n" + RESET + ">>> " + SET_TEXT_COLOR_GREEN);
   }
+
+  public void notify(String notification) {
+    System.out.println(SET_TEXT_COLOR_BLUE + notification);
+    printPrompt();
+  }
+
+
 }
 
 
