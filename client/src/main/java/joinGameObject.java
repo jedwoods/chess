@@ -1,2 +1,2 @@
-public record joinGameObject() {
+public record joinGameObject(String Authorization, String playerColor, int gameID) {
 }

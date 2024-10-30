@@ -11,6 +11,7 @@ import ui.logoutObject;
 public class ServerFacade {
   private final String serverUrl;
   private String authToken;
+  private int joinedGame;
 
   public ServerFacade ( String serverUrl){
     this.serverUrl=serverUrl;
@@ -51,10 +52,15 @@ public class ServerFacade {
   }
 
 
-  public ResponseObject joinGame(){
-
+  public ResponseObject joinGame(String playerColor, String gameID) throws ResponseException {
+    var path = "/game";
+    var method = "PUT";
+    String responseClass = null;
+    record joinGameObject(String Authorization, String playerColor, String gameID) {
+    }
+    joinedGame = Integer.parseInt(gameID);
+    return this.makeRequest("GET", path, new joinGameObject(authToken, playerColor, gameID), null);
   }
-
 
 
 
@@ -66,12 +72,15 @@ public class ServerFacade {
       http.setDoOutput(true);
 
       writeBody(request, http);
+
       http.connect();
       throwIfNotSuccessful(http);
       return readBody(http, responseClass);
     } catch (Exception ex) {
       throw new ResponseException(500, ex.getMessage());
     }
+
+
   }
 
   private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
