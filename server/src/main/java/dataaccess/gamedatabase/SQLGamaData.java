@@ -28,7 +28,6 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public GameData get(Integer currentID) {
-
     try (var conn =DatabaseManager.getConnection()){
       var statement = "SELECT * FROM games WHERE gameID =?";
       try (var ps = conn.prepareStatement(statement)){
@@ -50,7 +49,7 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public void add(GameData token) {
-    System.out.println("this is getting used when it shouldn't");
+
     var statement = "INSERT INTO games (gameID, gameName, jsongame) VALUES (?, ?, ?)";
     var json = new Gson().toJson(token);
     try {
@@ -92,7 +91,6 @@ public class SQLGamaData implements GameInterface{
         }
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
       throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
     }
     return result;

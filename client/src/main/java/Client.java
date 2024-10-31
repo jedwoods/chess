@@ -27,7 +27,7 @@ public class Client {
   public String help() {
     if (state == State.SIGNEDOUT) {
       return """
-                    - login <username> <password>
+                    - signIn <yourname>
                     - quit - get outta here
                     - help
                     - register <name> <password> <email>
@@ -35,8 +35,8 @@ public class Client {
     }
     return """
                 - list - gets all games
-                - create <game name>
-                - playGame <game ID> [white|black]
+                - create game <game name>
+                - play game <game ID> [white|black]
                 - observe game <game ID>
                 - signOut
                 - quit
@@ -52,11 +52,10 @@ public class Client {
       var params = Arrays.copyOfRange(tokens, 1, tokens.length);
       return switch (cmd) {
         case "logout" -> logout();
-        case "login" -> login(params);
+        case "sign in" -> login(params);
         case "list" -> listGames();
-        case "playgame" -> joinGame(params);
-        case "create" -> newGame(params);
-//        case "observegame" -> observe();
+        case "play game" -> joinGame(params);
+//        case "observe game" -> observe();
         case "register" -> register(params);
         case "quit" -> "quit";
         default -> help();
@@ -66,26 +65,12 @@ public class Client {
     }
   }
 
-  private String newGame(String[] params) throws ResponseException {
-    assertSignedIn();
-    if (params.length == 1) {
-      ResponseObject returned = server.createGame(params[0]);
-      return returned.message();
-    }
-    else{
-      throw new ResponseException(400, "Expected: <gameName>");
-    }
-  }
-
   public String listGames() throws ResponseException {
     assertSignedIn();
     this.games = server.listGames();
     var result = new StringBuilder();
     var gson = new Gson();
     int i = 1;
-    if (games.isEmpty()){
-      System.out.println("No games available");
-    }
     for (var game : this.games) {
       result.append(String.format("%d. %s%n", i, game.gameName())).append("\n");
       i++;
@@ -97,12 +82,11 @@ public class Client {
   public String joinGame(String[] params) throws ResponseException {
     assertSignedIn();
     if (params.length == 2) {
-//      ResponseObject response = server.joinGame(params[0], params[0]);
+      ResponseObject response = server.joinGame(params[0], params[0]);
       int id =  Integer.parseInt(params[0]);
       int i = 1;
       for (var game : this.games){
         if (i == id){
-          ResponseObject response = server.joinGame(params[1], game.gameID());
           return printBoard(game.game());
         }
       }
@@ -159,12 +143,8 @@ public class Client {
           result.append(secondary).append(getPiece(piece));
         }
       }
-      result.append(RESET).append(j+1);
+      result.append(RESET_TEXT_COLOR).append(j+1);
       result.append("\n");
-    }
-    result.append(" ");
-    for (String c : letters){
-      result.append(c);
     }
 
     return result.toString();

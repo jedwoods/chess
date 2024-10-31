@@ -89,7 +89,6 @@ public class Handler {
   public Object listGames(Request req, Response res) {
     String token=req.headers("Authorization");
     try {
-      res.status(200);
       return new Gson().toJson(service.listGames(token));
     }catch (DataAccessException e){
       res.status(e.statusCode());
@@ -99,7 +98,6 @@ public class Handler {
 
 
   public Object joinGame(Request req, Response res){
-
     String token = req.headers("Authorization");
     String bodyStuff = req.body();
     JoinRequest currentUser =  new Gson().fromJson(bodyStuff, JoinRequest.class);
