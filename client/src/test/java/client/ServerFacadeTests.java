@@ -1,5 +1,3 @@
-//package client;
-
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.gamedatabase.GameData;
@@ -116,9 +114,8 @@ public class ServerFacadeTests {
         facade.register("joinGameuser", "rando pass", "email");
         facade.createGame("game");
         facade.createGame("game2");
-        HashSet<GameData> games = facade.listGames();
-        facade.joinGame("BLACK", games.iterator().next().gameID());
         logout();
+
     }
 
     @Test

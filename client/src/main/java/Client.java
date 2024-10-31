@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import dataaccess.gamedatabase.GameData;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -2,19 +2,10 @@ import java.io.*;
 import java.net.*;
 import java.util.HashSet;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
-import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.authdatabase.AuthToken;
-import dataaccess.gamedatabase.GameData;
-import dataaccess.userdatabase.User;
 import server.ErrorMessage;
 import ui.logoutObject;
 
-import static ui.EscapeSequences.*;
 
 
 public class ServerFacade {
