@@ -154,10 +154,10 @@ public class Client {
     }
   }
 
-  private String getString(ChessPiece piece, String blackPawn, String blackRook, String blackKnight, String blackKing, String blackQueen, String blackBishop) {
+  private String getString(ChessPiece piece, String bP, String bR, String blackKnight, String blackKing, String blackQueen, String blackBishop) {
     return switch (piece.getPieceType()) {
-      case ChessPiece.PieceType.PAWN -> blackPawn;
-      case ChessPiece.PieceType.ROOK -> blackRook;
+      case ChessPiece.PieceType.PAWN -> bP;
+      case ChessPiece.PieceType.ROOK -> bR;
       case ChessPiece.PieceType.KNIGHT -> blackKnight;
       case ChessPiece.PieceType.KING -> blackKing;
       case ChessPiece.PieceType.QUEEN -> blackQueen;
