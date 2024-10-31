@@ -13,7 +13,7 @@ public class Repl {
 
 
   public void run() {
-    System.out.println("♘ Welcome to the Chess. Sign in to start.");
+    System.out.println("♘ Welcome to the Chess. Sign in or Register to start.");
     System.out.print(client.help());
 
     Scanner scanner = new Scanner(System.in);
@@ -44,7 +44,3 @@ public class Repl {
 
 
 }
-
-
-
-
