@@ -6,7 +6,6 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.gamedatabase.GameData;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +16,14 @@ public class Client {
   ServerFacade server;
   State state;
   HashSet<GameData> games;
+  List<String> letters;
 
 
 
   public Client(String site) {
     this.server = new ServerFacade(site);
     this.state = State.SIGNEDOUT;
+    this.letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
   }
 
   public String help() {
@@ -148,28 +149,15 @@ public class Client {
     // Top border with column labels
     result.append("   ");
     for (String c : letters) {
-      result.append(" ").append(c).append(" ");
+      result.append("  ").append(c).append("  ");
     }
     result.append("\n");
 
     // Print each row
     for (int row = 8; row >= 1; row--) { // Rows go from 8 to 1 in chess
       result.append(" ").append(row).append(" "); // Row label
-
-      for (int col = 1; col <= 8; col++) {
-        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-
-        // Alternate colors for checkerboard pattern
-        if ((row + col) % 2 == 0) {
-          result.append(SET_BG_COLOR_LIGHT_GREY);
-        } else {
-          result.append(SET_BG_COLOR_DARK_GREEN);
-        }
-
-        result.append(" ").append(getPiece(piece)).append(" ");
-      }
-
-      result.append(RESET).append(" ").append(row).append("\n"); // Row end and reset colors
+      boardBuilder(result, row, board);
+      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
     }
 
     // Bottom border with column labels
@@ -219,5 +207,44 @@ public class Client {
       throw new ResponseException(400, "You must sign in");
     }
   }
+
+  public String printBackwards(ChessGame game) {
+    ChessBoard board=game.getBoard();
+    var result=new StringBuilder();
+
+    result.append("   ");
+    for (String c : letters) {
+      result.append("  ").append(c).append("  ");
+    }
+    result.append("\n");
+    for (int row=1; row <= 8; row++) { // Rows go from 8 to 1 in chess
+      boardBuilder(result, row, board);
+      // Bottom border with column labels
+      result.append("   ");
+      for (String c : letters) {
+        result.append(" ").append(c).append(" ");
+      }
+    }
+    return result.toString();
+  }
+
+  public void boardBuilder(StringBuilder result, int row, ChessBoard board){
+      result.append(" ").append(row).append(" "); // Row label
+
+      for (int col = 1; col <= 8; col++) {
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+
+        // Alternate colors for checkerboard pattern
+        if ((row + col) % 2 == 0) {
+          result.append(SET_BG_COLOR_LIGHT_GREY);
+        } else {
+          result.append(SET_BG_COLOR_DARK_GREEN);
+        }
+
+        result.append(" ").append(getPiece(piece)).append(" ");
+      }
+      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
+  }
+
 
 }
