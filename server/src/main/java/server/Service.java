@@ -8,6 +8,7 @@ import dataaccess.gamedatabase.GameData;
 import dataaccess.gamedatabase.GameResponse;
 import dataaccess.userdatabase.*;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import org.mindrot.jbcrypt.*;
@@ -67,13 +68,13 @@ public class Service {
     if (currentGame == null){
       throw new DataAccessException(400,"Error: bad request" );
     }
-    boolean blackBool = Objects.equals(currentUser.playerColor(), "BLACK");
-    boolean whiteBool = Objects.equals(currentUser.playerColor(), "WHITE");
-    if (!blackBool && !whiteBool && !Objects.equals(currentUser.playerColor(), "")){
+    boolean blackBool = Objects.equals(currentUser.playerColor(), "black");
+    boolean whiteBool = Objects.equals(currentUser.playerColor(), "white");
+    if (!blackBool && !whiteBool ){
       throw new DataAccessException(400,"Error: Not an actual color");
 
     }
-    if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
+    if (Objects.equals(currentUser.playerColor(), "white") && currentGame.whiteUsername() == null){
       dataAccess.removeGame(currentGame);
       dataAccess.reAddGame(new GameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
       return new EmptyMessage();

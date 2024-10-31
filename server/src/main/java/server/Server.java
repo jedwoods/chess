@@ -13,13 +13,12 @@ public class Server {
         Spark.staticFiles.location("web");
         // Register your endpoints and handle exceptions here.
 
-
+        Spark.get("/game", handler::listGames);
         Spark.delete("/db", handler::clear);
         Spark.post("/user", handler::register);
         Spark.post("/game", handler::newGame);
         Spark.delete("/session", handler::logout);
         Spark.post("/session", handler::login);
-        Spark.get("/game", handler::listGames);
         Spark.put("/game", handler::joinGame);
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);

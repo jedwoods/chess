@@ -63,6 +63,7 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public GameData addGame(String gameName){
+    System.out.println("this REALLLY shouldnt not is getting used when it shouldn't");
     GameData game = new GameData(gameNum, null, null, gameName, new ChessGame());
     games.add(game);
     gameNum += 1;
