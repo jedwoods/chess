@@ -1,10 +1,5 @@
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.gamedatabase.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
-
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,12 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ServerFacadeTests {
 
     private static Server server;
-    private ServerFacade facade = new ServerFacade("http://localhost:8080");
+    private static ServerFacade facade;
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(0);
+        facade = new ServerFacade("http://localhost:" + port);
         System.out.println("Started test HTTP server on " + port);
         server.clear();
 
