@@ -1,8 +1,11 @@
+package facade;
+
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
 
 import com.google.gson.Gson;
+import records.*;
 import ui.LogoutObject;
 
 
@@ -151,7 +154,7 @@ public class ServerFacade {
         }
       }
 
-  private void messageReader(StringBuilder message, HttpURLConnection http) throws IOException, ResponseException{
+  private void messageReader(StringBuilder message, HttpURLConnection http) throws IOException, ResponseException {
     int status = http.getResponseCode();
     try (var errorStream = http.getErrorStream()) {
       if (errorStream != null) {

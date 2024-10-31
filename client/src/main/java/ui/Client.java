@@ -1,9 +1,14 @@
+package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import facade.ServerFacade;
+import records.GameData;
+import records.ResponseException;
+import records.ResponseObject;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -99,7 +104,7 @@ public class Client {
     assertSignedIn();
     int id;
     if (params.length == 2) {
-//      ResponseObject response = server.joinGame(params[0], params[0]);
+//      records.ResponseObject response = server.joinGame(params[0], params[0]);
       try {
         id=Integer.parseInt(params[0]);
       } catch (NumberFormatException e) {
@@ -123,7 +128,7 @@ public class Client {
     assertSignedIn();
     int id;
     if (params.length == 1) {
-//      ResponseObject response = server.joinGame(params[0], params[0]);
+//      records.ResponseObject response = server.joinGame(params[0], params[0]);
       try {
         id=Integer.parseInt(params[0]);
       } catch (NumberFormatException e) {
@@ -132,7 +137,7 @@ public class Client {
       int i = 1;
       for (var game : this.games){
         if (i == id){
-//          ResponseObject response = server.joinGame(null, game.gameID());
+//          records.ResponseObject response = server.joinGame(null, game.gameID());
           return printBoard(game.game());
         }
         i++;

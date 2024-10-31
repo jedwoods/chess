@@ -1,3 +1,5 @@
+package ui;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -37,7 +39,7 @@ public class Repl {
   private void printPrompt() {
     System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLUE + "[" + client.state + "] >>> " + SET_TEXT_COLOR_GREEN);
   }
-  
+
 
 
 }

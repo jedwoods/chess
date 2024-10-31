@@ -1,5 +1,8 @@
+package client;
+import facade.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
+import records.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -20,17 +23,11 @@ public class ServerFacadeTests {
     }
 
 
-
     @AfterAll
     static void stopServer() {
         server.stop();
     }
 
-
-    @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
-    }
 
 
     @Test

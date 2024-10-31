@@ -1,3 +1,5 @@
+package records;
+
 public class ResponseException extends Exception{
   transient int statusCode;
   String message;
