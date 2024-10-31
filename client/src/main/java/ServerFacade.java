@@ -50,7 +50,7 @@ public class ServerFacade {
       this.userName = user.username();
       return new ResponseObject(200, "You are now logged in brotha");
     } catch (Exception e){
-      throw new ResponseException(500, e.getMessage());
+      throw new ResponseException(500, "failed to login, incorrect user or password");
     }
   }
 
@@ -153,9 +153,24 @@ public class ServerFacade {
 
 
   private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
-    var status = http.getResponseCode();
+    int status = http.getResponseCode();
     if (!isSuccessful(status)) {
-      throw new ResponseException(status, "failure: " + status);
+      // Read the error stream to get the response message
+      StringBuilder message = new StringBuilder();
+      try (var errorStream = http.getErrorStream()) {
+        if (errorStream != null) {
+          try (var reader = new BufferedReader(new InputStreamReader(errorStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              message.append(line).append("\n");
+            }
+          }
+        } else {
+          message.append("No error message available.");
+        }
+      }
+      ErrorMessage message2 = new Gson().fromJson(message.toString().trim(), ErrorMessage.class);
+      throw new ResponseException(status, message2.message());
     }
   }
 
