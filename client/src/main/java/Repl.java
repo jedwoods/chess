@@ -13,7 +13,7 @@ public class Repl {
 
 
   public void run() {
-    System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + "♘ Welcome to the Chess. Sign in or Register to start.");
+    System.out.println(SET_TEXT_COLOR_BLUE + "♘ Welcome to the Chess. Sign in or Register to start.");
 
     System.out.print(client.help());
 
@@ -25,7 +25,7 @@ public class Repl {
 
       try {
         result = client.eval(line);
-        System.out.print(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK+ result);
+        System.out.print(SET_TEXT_COLOR_BLUE + result);
       } catch (Throwable e) {
         var msg = e.toString();
         System.out.print(msg);
@@ -35,7 +35,7 @@ public class Repl {
   }
 
   private void printPrompt() {
-    System.out.print("\n" + RESET + "[" + client.state + "] >>> " + SET_TEXT_COLOR_GREEN);
+    System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLUE + "[" + client.state + "] >>> " + SET_TEXT_COLOR_GREEN);
   }
 
   public void notify(String notification) {
