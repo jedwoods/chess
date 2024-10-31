@@ -98,9 +98,14 @@ public class Client {
 
   public String joinGame(String[] params) throws ResponseException {
     assertSignedIn();
+    int id;
     if (params.length == 2) {
 //      ResponseObject response = server.joinGame(params[0], params[0]);
-      int id =  Integer.parseInt(params[0]);
+      try {
+        id=Integer.parseInt(params[0]);
+      } catch (NumberFormatException e) {
+        throw new ResponseException(401, "input must be a valid index");
+      }
       int i = 1;
       for (var game : this.games){
         if (i == id){

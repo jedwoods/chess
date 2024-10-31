@@ -5,6 +5,9 @@ import spark.*;
 
 public class Server {
     Handler handler= new Handler();
+    public void clear(){
+        handler.service.clear();
+    }
 
 
     public int run(int desiredPort) {
