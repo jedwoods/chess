@@ -1,21 +1,10 @@
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import com.google.gson.Gson;
-import dataaccess.gamedatabase.GameData;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
-import static ui.EscapeSequences.*;
 
 public class Client {
   ServerFacade server;
   State state;
-  HashSet<GameData> games;
 
 
 
@@ -55,8 +44,7 @@ public class Client {
         case "sign in" -> login(params);
         case "list" -> listGames();
         case "play game" -> joinGame(params);
-//        case "observe game" -> observe();
-        case "register" -> register(params);
+        case "observe game" -> observe();
         case "quit" -> "quit";
         default -> help();
       };
@@ -67,15 +55,12 @@ public class Client {
 
   public String listGames() throws ResponseException {
     assertSignedIn();
-    this.games = server.listGames();
+    var games = server.listGames();
     var result = new StringBuilder();
     var gson = new Gson();
-    int i = 1;
-    for (var game : this.games) {
-      result.append(String.format("%d. %s%n", i, game.gameName())).append("\n");
-      i++;
+    for (var game : games) {
+      result.append(gson.toJson(game)).append('\n');
     }
-
     return result.toString();
   }
 
@@ -83,72 +68,10 @@ public class Client {
     assertSignedIn();
     if (params.length == 2) {
       ResponseObject response = server.joinGame(params[0], params[0]);
-      int id =  Integer.parseInt(params[0]);
-      int i = 1;
-      for (var game : this.games){
-        if (i == id){
-          return printBoard(game.game());
-        }
-      }
-      throw new ResponseException(400, "invalid ID");
+      return "";
     } else{
       throw new ResponseException(400, "Expected: <your name> <password>");
     }
-  }
-
-
-  public String getPiece(ChessPiece piece){
-    if (piece == null){
-      return " ";
-    } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-    return switch (piece.getPieceType()) {
-      case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
-      case ChessPiece.PieceType.ROOK -> BLACK_ROOK;
-      case ChessPiece.PieceType.KNIGHT -> BLACK_KNIGHT;
-      case ChessPiece.PieceType.KING -> BLACK_KING;
-      case ChessPiece.PieceType.QUEEN -> BLACK_QUEEN;
-      case ChessPiece.PieceType.BISHOP -> BLACK_BISHOP;
-    };
-  }else{
-      return switch (piece.getPieceType()) {
-        case ChessPiece.PieceType.PAWN -> WHITE_PAWN;
-        case ChessPiece.PieceType.ROOK -> WHITE_ROOK;
-        case ChessPiece.PieceType.KNIGHT -> WHITE_KNIGHT;
-        case ChessPiece.PieceType.KING -> WHITE_KING;
-        case ChessPiece.PieceType.QUEEN -> WHITE_QUEEN;
-        case ChessPiece.PieceType.BISHOP -> WHITE_BISHOP;
-    };
-  }
-  }
-
-
-  public String printBoard(ChessGame game){
-    List<String> letters = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
-    ChessBoard board = game.getBoard();
-    var result = new StringBuilder();
-    result.append(" ");
-    for (String c : letters){
-      result.append(c);
-    }
-    result.append(" \n");
-    String color = SET_BG_COLOR_LIGHT_GREY;
-    String secondary = SET_BG_COLOR_DARK_GREEN;
-    for (int j = 1; j<9; j++ ){
-      result.append(RESET_TEXT_COLOR).append(j+1);
-      for (int k = 1; k<9; k++ ){
-        ChessPiece piece = board.getPiece(new ChessPosition(j,k));
-        if (j %2 == k %2){
-          result.append(color).append(getPiece(piece));
-        }else{
-          result.append(secondary).append(getPiece(piece));
-        }
-      }
-      result.append(RESET_TEXT_COLOR).append(j+1);
-      result.append("\n");
-    }
-
-    return result.toString();
-
   }
 
 
@@ -164,19 +87,9 @@ public class Client {
   }
 
 
-
-  public String register(String[] params) throws ResponseException {
-    if (params.length == 3) {
-      ResponseObject response= server.register(params[0], params[1], params[2]);
-      state=State.SIGNEDIN;
-      return "";
-    } else {
-      throw new ResponseException(400, "Expected: <your name> <password>");
-    }
-  }
   public String login(String[] params) throws ResponseException {
     if (params.length == 2) {
-      ResponseObject response = server.login(params[0], params[1]);
+      ResponseObject response = server.login(params[0], params[0]);
       state = State.SIGNEDIN;
       return "";
     } else{

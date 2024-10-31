@@ -1,11 +1,9 @@
 import java.io.*;
 import java.net.*;
-import java.util.HashSet;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.authdatabase.AuthToken;
-import dataaccess.gamedatabase.GameData;
 import dataaccess.userdatabase.User;
 import ui.logoutObject;
 
@@ -33,18 +31,6 @@ public class ServerFacade {
     }
   }
 
-  public ResponseObject register(String username, String password, String email) throws ResponseException {
-    String path="/user";
-    try {
-      AuthToken user=makeRequest("POST", path, new User(username, password, email), AuthToken.class, this.authToken);
-      this.authToken=user.authToken();
-      this.userName=user.username();
-      return new ResponseObject(200, "You are now logged in brotha");
-    } catch (Exception e) {
-      throw new ResponseException(500, e.getMessage());
-    }
-  }
-
 
   public void logout() throws ResponseException {
     String path = "/session";
@@ -59,12 +45,12 @@ public class ServerFacade {
   }
 
 
-  public HashSet<GameData> listGames() throws ResponseException {
+  public ChessGame[] listGames() throws ResponseException {
     var path = "/game";
-    record listGameResponse(HashSet<GameData> games) {
+    record listGameResponse(ChessGame[] game) {
     }
     var response = this.makeRequest("GET", path, new AuthToken(this.userName, this.authToken), listGameResponse.class, null);
-    return response.games();
+    return response.game();
   }
 
 
