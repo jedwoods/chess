@@ -2,6 +2,10 @@ import java.io.*;
 import java.net.*;
 import java.util.HashSet;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.authdatabase.AuthToken;
@@ -9,6 +13,8 @@ import dataaccess.gamedatabase.GameData;
 import dataaccess.userdatabase.User;
 import server.ErrorMessage;
 import ui.logoutObject;
+
+import static ui.EscapeSequences.*;
 
 
 public class ServerFacade {
@@ -158,7 +164,29 @@ public class ServerFacade {
       throw new ResponseException(status, "failure: " + status);
     }
   }
-
+  public String getPiece(ChessPiece piece){
+    if (piece == null){
+      return " ";
+    } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+      return switch (piece.getPieceType()) {
+        case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
+        case ChessPiece.PieceType.ROOK -> BLACK_ROOK;
+        case ChessPiece.PieceType.KNIGHT -> BLACK_KNIGHT;
+        case ChessPiece.PieceType.KING -> BLACK_KING;
+        case ChessPiece.PieceType.QUEEN -> BLACK_QUEEN;
+        case ChessPiece.PieceType.BISHOP -> BLACK_BISHOP;
+      };
+    }else{
+      return switch (piece.getPieceType()) {
+        case ChessPiece.PieceType.PAWN -> WHITE_PAWN;
+        case ChessPiece.PieceType.ROOK -> WHITE_ROOK;
+        case ChessPiece.PieceType.KNIGHT -> WHITE_KNIGHT;
+        case ChessPiece.PieceType.KING -> WHITE_KING;
+        case ChessPiece.PieceType.QUEEN -> WHITE_QUEEN;
+        case ChessPiece.PieceType.BISHOP -> WHITE_BISHOP;
+      };
+    }
+  }
 
   private boolean isSuccessful(int status) {
     return status / 100 == 2;
