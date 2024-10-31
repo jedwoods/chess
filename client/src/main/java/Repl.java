@@ -13,7 +13,8 @@ public class Repl {
 
 
   public void run() {
-    System.out.println("♘ Welcome to the Chess. Sign in or Register to start.");
+    System.out.println(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK + "♘ Welcome to the Chess. Sign in or Register to start.");
+
     System.out.print(client.help());
 
     Scanner scanner = new Scanner(System.in);
@@ -24,7 +25,7 @@ public class Repl {
 
       try {
         result = client.eval(line);
-        System.out.print(SET_TEXT_COLOR_BLUE + result);
+        System.out.print(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_BLACK+ result);
       } catch (Throwable e) {
         var msg = e.toString();
         System.out.print(msg);

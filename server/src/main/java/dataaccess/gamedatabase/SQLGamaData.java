@@ -49,7 +49,6 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public void add(GameData token) {
-
     var statement = "INSERT INTO games (gameID, gameName, jsongame) VALUES (?, ?, ?)";
     var json = new Gson().toJson(token);
     try {
@@ -96,6 +95,20 @@ public class SQLGamaData implements GameInterface{
     return result;
   }
 
+
+  public  int idx() throws DataAccessException {
+      var conn = DatabaseManager.getConnection();
+      String query = "SELECT MAX(gameID) FROM games";
+      try (var statement = conn.prepareStatement(query)) {
+        var resultSet = statement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getInt(1); // Retrieves the maximum gameID
+        }
+      } catch (SQLException e) {
+         System.out.println(e.getMessage());
+      }
+      return 1;
+  }
 
 
   public void clear(){

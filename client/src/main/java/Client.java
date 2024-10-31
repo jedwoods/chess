@@ -103,9 +103,10 @@ public class Client {
       int i = 1;
       for (var game : this.games){
         if (i == id){
-          ResponseObject response = server.joinGame(params[1], game.gameID());
+          ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
           return printBoard(game.game());
         }
+        i++;
       }
       throw new ResponseException(400, "invalid ID");
     } else{
@@ -116,7 +117,7 @@ public class Client {
 
   public String getPiece(ChessPiece piece){
     if (piece == null){
-      return " ";
+      return "   ";
     } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
       return switch (piece.getPieceType()) {
         case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
@@ -139,39 +140,46 @@ public class Client {
   }
 
 
-  public String printBoard(ChessGame game){
-    List<String> letters = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
+  public String printBoard(ChessGame game) {
+    List<String> letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
     ChessBoard board = game.getBoard();
     var result = new StringBuilder();
-    result.append(" ");
-    for (String c : letters){
-      result.append(c);
+
+    // Top border with column labels
+    result.append("   ");
+    for (String c : letters) {
+      result.append(" ").append(c).append(" ");
     }
-    result.append(" \n");
-    String color = SET_BG_COLOR_LIGHT_GREY;
-    String secondary = SET_BG_COLOR_DARK_GREEN;
-    for (int j = 1; j<9; j++ ){
-      result.append(RESET_TEXT_COLOR).append(j+1);
-      for (int k = 1; k<9; k++ ){
-        ChessPiece piece = board.getPiece(new ChessPosition(j,k));
-        if (j %2 == k %2){
-          result.append(color).append(getPiece(piece));
-        }else{
-          result.append(secondary).append(getPiece(piece));
+    result.append("\n");
+
+    // Print each row
+    for (int row = 8; row >= 1; row--) { // Rows go from 8 to 1 in chess
+      result.append(" ").append(row).append(" "); // Row label
+
+      for (int col = 1; col <= 8; col++) {
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+
+        // Alternate colors for checkerboard pattern
+        if ((row + col) % 2 == 0) {
+          result.append(SET_BG_COLOR_LIGHT_GREY);
+        } else {
+          result.append(SET_BG_COLOR_DARK_GREEN);
         }
+
+        result.append(" ").append(getPiece(piece)).append(" ");
       }
-      result.append(RESET).append(j+1);
-      result.append("\n");
+
+      result.append(RESET).append(" ").append(row).append("\n"); // Row end and reset colors
     }
-    result.append(" ");
-    for (String c : letters){
-      result.append(c);
+
+    // Bottom border with column labels
+    result.append("   ");
+    for (String c : letters) {
+      result.append(" ").append(c).append(" ");
     }
 
     return result.toString();
-
   }
-
 
   public String logout() throws  ResponseException{
     assertSignedIn();

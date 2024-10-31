@@ -155,38 +155,12 @@ public class ServerFacade {
   private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
     var status = http.getResponseCode();
     if (!isSuccessful(status)) {
-//      System.out.println(new Gson().fromJson(http.getResponseMessage(), ErrorMessage.class));
-
-//        InputStream respBody = http.getInputStream();
-//        InputStreamReader reader = new InputStreamReader(respBody);
-//        ErrorMessage message = new Gson().fromJson(reader, ErrorMessage.class);
-//      System.out.println(message.message());
       throw new ResponseException(status, "failure: " + status);
     }
   }
-  public String getPiece(ChessPiece piece){
-    if (piece == null){
-      return " ";
-    } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-      return switch (piece.getPieceType()) {
-        case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
-        case ChessPiece.PieceType.ROOK -> BLACK_ROOK;
-        case ChessPiece.PieceType.KNIGHT -> BLACK_KNIGHT;
-        case ChessPiece.PieceType.KING -> BLACK_KING;
-        case ChessPiece.PieceType.QUEEN -> BLACK_QUEEN;
-        case ChessPiece.PieceType.BISHOP -> BLACK_BISHOP;
-      };
-    }else{
-      return switch (piece.getPieceType()) {
-        case ChessPiece.PieceType.PAWN -> WHITE_PAWN;
-        case ChessPiece.PieceType.ROOK -> WHITE_ROOK;
-        case ChessPiece.PieceType.KNIGHT -> WHITE_KNIGHT;
-        case ChessPiece.PieceType.KING -> WHITE_KING;
-        case ChessPiece.PieceType.QUEEN -> WHITE_QUEEN;
-        case ChessPiece.PieceType.BISHOP -> WHITE_BISHOP;
-      };
-    }
-  }
+
+
+
 
   private boolean isSuccessful(int status) {
     return status / 100 == 2;

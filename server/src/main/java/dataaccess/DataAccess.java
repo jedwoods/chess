@@ -22,13 +22,25 @@ public class DataAccess implements DataAccessInterface{
     this.sessions = new SQLAuthData();
     this.games = new SQLGamaData();
     this.users = new SQLUserData();
-    this.gameNum = 1;
     try {
       configureDataBase();
     } catch (DataAccessException e) {
       throw new RuntimeException(e);
     }
+    this.gameNum = getIDX() + 1;
+    if (this.gameNum < 1){
+      this.gameNum = 1;
+    }
   }
+
+  public int getIDX(){
+    try{
+      return games.idx();
+    } catch (DataAccessException e){
+      return 1;
+    }
+  }
+
 
   public void clear() throws DataAccessException {
     sessions.clear();
