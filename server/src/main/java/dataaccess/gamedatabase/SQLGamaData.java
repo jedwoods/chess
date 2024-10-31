@@ -35,7 +35,9 @@ public class SQLGamaData implements GameInterface{
         ps.setInt(1, currentID);
         try (var rs = ps.executeQuery()) {
           if (rs.next()){
-            return new Gson().fromJson(rs.getString("jsongame"), GameData.class);
+            GameData current = new Gson().fromJson(rs.getString("jsongame"), GameData.class);
+            return new GameData(rs.getInt("gameID"), current.whiteUsername(), current.blackUsername(), current.gameName(), current.game());
+
           }
         }
       }
@@ -50,11 +52,12 @@ public class SQLGamaData implements GameInterface{
 
   @Override
   public void add(GameData token) {
-    System.out.println("this is getting used when it shouldn't");
-    var statement = "INSERT INTO games (gameID, gameName, jsongame) VALUES (?, ?, ?)";
+//    System.out.println("this is getting used when it shouldn't");
+    var statement = "INSERT INTO games (gameName, jsongame) VALUES ( ?, ?)";
     var json = new Gson().toJson(token);
     try {
-      var id=executeUpdate(statement, token.gameID(), token.gameName(), json);
+      var id=executeUpdate(statement, token.gameName(), json);
+
     } catch (DataAccessException e) {
       throw new RuntimeException(e);
     }
@@ -87,7 +90,8 @@ public class SQLGamaData implements GameInterface{
       try (var ps = conn.prepareStatement(statement)) {
         try (var rs = ps.executeQuery()) {
           while (rs.next()) {
-            result.add(new Gson().fromJson(rs.getString("jsongame"), GameData.class));
+            GameData current = new Gson().fromJson(rs.getString("jsongame"), GameData.class);
+            result.add(new GameData(rs.getInt("gameID"), current.whiteUsername(), current.blackUsername(), current.gameName(), current.game()));
           }
         }
       }

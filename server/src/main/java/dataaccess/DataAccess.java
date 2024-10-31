@@ -63,7 +63,7 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public GameData addGame(String gameName){
-    System.out.println("this REALLLY shouldnt not is getting used when it shouldn't");
+//    System.out.println("this REALLLY shouldnt not is getting used when it shouldn't");
     GameData game = new GameData(gameNum, null, null, gameName, new ChessGame());
     games.add(game);
     gameNum += 1;
@@ -118,12 +118,11 @@ private final String[] createStatements = {"""
           """,
           """
           CREATE TABLE IF NOT EXISTS games (
-          gameID int NOT NULL,
+          gameID INT UNSIGNED AUTO_INCREMENT,
           gameName varchar(256) NOT NULL,
           jsongame text NOT NULL,
           PRIMARY KEY (gameID),
-          INDEX(gameName),
-          INDEX(gameID)
+          INDEX(gameName)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """
