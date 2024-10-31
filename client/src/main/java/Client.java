@@ -109,7 +109,7 @@ public class Client {
       for (var game : this.games){
         if (i == id){
           ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
-          return printBoard(game.game()) + "\n\n" + printBackwards(game.game());
+          return printBoard(game.game());
         }
         i++;
       }
@@ -133,7 +133,7 @@ public class Client {
       for (var game : this.games){
         if (i == id){
 //          ResponseObject response = server.joinGame(null, game.gameID());
-          return printBoard(game.game()) + "\n\n" + printBackwards(game.game());
+          return printBoard(game.game());
         }
         i++;
       }
@@ -167,32 +167,44 @@ public class Client {
 
 
   public String printBoard(ChessGame game) {
-    List<String> letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
     ChessBoard board = game.getBoard();
     var result = new StringBuilder();
 
-    // Top border with column labels
+    appendColumnLabels(result);
+
+    for (int row = 8; row >= 1; row--) {
+      appendRow(result, row, board);
+    }
+
+
+    appendColumnLabels(result);
+
+    result.append("\n\n");
+
+    appendColumnLabels(result);
+
+    for (int row = 1; row <= 8; row++) {
+      appendRow(result, row, board);
+    }
+    appendColumnLabels(result);
+
+    return result.toString();
+  }
+
+  private void appendColumnLabels(StringBuilder result) {
     result.append("   ");
     for (String c : letters) {
       result.append("  ").append(c).append("  ");
     }
     result.append("\n");
-
-    // Print each row
-    for (int row = 8; row >= 1; row--) { // Rows go from 8 to 1 in chess
-      result.append(" ").append(row).append(" "); // Row label
-      boardBuilder(result, row, board);
-      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
-    }
-
-    // Bottom border with column labels
-    result.append("   ");
-    for (String c : letters) {
-      result.append("  ").append(c).append("  ");
-    }
-
-    return result.toString();
   }
+
+  private void appendRow(StringBuilder result, int row, ChessBoard board) {
+    result.append(" ").append(row).append(" "); // Row label
+    boardBuilder(result, row, board); // Build row content
+    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
+  }
+
 
   public String logout() throws  ResponseException{
     assertSignedIn();
@@ -233,26 +245,7 @@ public class Client {
     }
   }
 
-  public String printBackwards(ChessGame game) {
-    List<String> letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
-    ChessBoard board = game.getBoard();
-    var result = new StringBuilder();
 
-    // Top border with column labels
-    result.append("   ");
-    for (String c : letters) {
-      result.append("  ").append(c).append("  ");
-    }
-    result.append("\n");
-
-    // Print each row
-    for (int row = 8; row >= 1; row--) { // Rows go from 8 to 1 in chess
-      result.append(" ").append(row).append(" "); // Row label
-      boardBuilder(result, row, board);
-      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
-    }
-    return result.toString();
-  }
 
   public void boardBuilder(StringBuilder result, int row, ChessBoard board){
 //      result.append(" ").append(row).append(" ");
