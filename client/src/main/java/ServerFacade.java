@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.HashSet;
 
 import com.google.gson.Gson;
-import ui.logoutObject;
+import ui.LogoutObject;
 
 
 
@@ -22,9 +22,9 @@ public class ServerFacade {
   public ResponseObject createGame(String gameName) throws ResponseException {
     String path = "/game";
     try {
-      record newGame(String gameName){}
-      record gameResponse(int gameID){}
-      makeRequest("POST", path,new newGame(gameName), gameResponse.class, this.authToken);
+      record NewGame(String gameName){}
+      record GameResponse(int gameID){}
+      makeRequest("POST", path,new NewGame(gameName), GameResponse.class, this.authToken);
       return new ResponseObject(200, "New Game Created");
     } catch (Exception e){
       throw new ResponseException(500, e.getMessage());
@@ -61,7 +61,7 @@ public class ServerFacade {
   public void logout() throws ResponseException {
     String path = "/session";
     try {
-      AuthToken user = makeRequest("DELETE", path, new Gson().toJson(new logoutObject(this.authToken)), null, this.authToken);
+      AuthToken user = makeRequest("DELETE", path, new Gson().toJson(new LogoutObject(this.authToken)), null, this.authToken);
       this.authToken = null;
       new ResponseObject(200, "You are now logged out brotha");
     } catch (Exception e){
@@ -73,20 +73,20 @@ public class ServerFacade {
 
   public HashSet<GameData> listGames() throws ResponseException {
     var path="/game";
-    record listGameResponse(HashSet<GameData> games) {
+    record ListGameResponse(HashSet<GameData> games) {
     }
-    record Token(String Authorization) {
+    record Token(String authorization) {
     }
-    var response=this.makeRequest("GET", path, new Token(this.authToken), listGameResponse.class, this.authToken);
+    var response=this.makeRequest("GET", path, new Token(this.authToken), ListGameResponse.class, this.authToken);
     return response.games();
   }
 
 
   public ResponseObject joinGame(String playerColor, int gameID) throws ResponseException {
     var path = "/game";
-    record joinGameObject(String playerColor, int gameID) {
+    record JoinGameObject(String playerColor, int gameID) {
     }
-    return this.makeRequest("PUT", path, new joinGameObject(playerColor, gameID), null,this.authToken);
+    return this.makeRequest("PUT", path, new JoinGameObject(playerColor, gameID), null,this.authToken);
   }
 
   private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String auth) throws ResponseException {
@@ -147,24 +147,27 @@ public class ServerFacade {
     if (!isSuccessful(status)) {
       // Read the error stream to get the response message
       StringBuilder message = new StringBuilder();
-      try (var errorStream = http.getErrorStream()) {
-        if (errorStream != null) {
-          try (var reader = new BufferedReader(new InputStreamReader(errorStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-              message.append(line).append("\n");
-            }
-          }
-        } else {
-          message.append("No error message available.");
+       messageReader(message, http);
         }
       }
-      ErrorMessage message2 = new Gson().fromJson(message.toString().trim(), ErrorMessage.class);
-      throw new ResponseException(status, message2.message());
+
+  private void messageReader(StringBuilder message, HttpURLConnection http) throws IOException, ResponseException{
+    int status = http.getResponseCode();
+    try (var errorStream = http.getErrorStream()) {
+      if (errorStream != null) {
+        try (var reader = new BufferedReader(new InputStreamReader(errorStream))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+            message.append(line).append("\n");
+          }
+        }
+      } else {
+        message.append("No error message available.");
+      }
     }
+    ErrorMessage message2 = new Gson().fromJson(message.toString().trim(), ErrorMessage.class);
+    throw new ResponseException(status, message2.message());
   }
-
-
 
 
   private boolean isSuccessful(int status) {

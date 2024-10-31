@@ -148,24 +148,21 @@ public class Client {
     if (piece == null){
       return "   ";
     } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-      return switch (piece.getPieceType()) {
-        case ChessPiece.PieceType.PAWN -> BLACK_PAWN;
-        case ChessPiece.PieceType.ROOK -> BLACK_ROOK;
-        case ChessPiece.PieceType.KNIGHT -> BLACK_KNIGHT;
-        case ChessPiece.PieceType.KING -> BLACK_KING;
-        case ChessPiece.PieceType.QUEEN -> BLACK_QUEEN;
-        case ChessPiece.PieceType.BISHOP -> BLACK_BISHOP;
-      };
+      return getString(piece, BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP);
     }else{
-      return switch (piece.getPieceType()) {
-        case ChessPiece.PieceType.PAWN -> WHITE_PAWN;
-        case ChessPiece.PieceType.ROOK -> WHITE_ROOK;
-        case ChessPiece.PieceType.KNIGHT -> WHITE_KNIGHT;
-        case ChessPiece.PieceType.KING -> WHITE_KING;
-        case ChessPiece.PieceType.QUEEN -> WHITE_QUEEN;
-        case ChessPiece.PieceType.BISHOP -> WHITE_BISHOP;
-      };
+      return getString(piece, WHITE_PAWN, WHITE_ROOK, WHITE_KNIGHT, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP);
     }
+  }
+
+  private String getString(ChessPiece piece, String blackPawn, String blackRook, String blackKnight, String blackKing, String blackQueen, String blackBishop) {
+    return switch (piece.getPieceType()) {
+      case ChessPiece.PieceType.PAWN -> blackPawn;
+      case ChessPiece.PieceType.ROOK -> blackRook;
+      case ChessPiece.PieceType.KNIGHT -> blackKnight;
+      case ChessPiece.PieceType.KING -> blackKing;
+      case ChessPiece.PieceType.QUEEN -> blackQueen;
+      case ChessPiece.PieceType.BISHOP -> blackBishop;
+    };
   }
 
 
