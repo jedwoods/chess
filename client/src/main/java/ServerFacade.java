@@ -3,7 +3,6 @@ import java.net.*;
 import java.util.HashSet;
 
 import com.google.gson.Gson;
-import server.ErrorMessage;
 import ui.logoutObject;
 
 
