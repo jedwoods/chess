@@ -58,7 +58,7 @@ public class Client {
         case "list" -> listGames();
         case "playgame" -> joinGame(params);
         case "create" -> newGame(params);
-//        case "observegame" -> observe();
+        case "observe" -> observe(params);
         case "register" -> register(params);
         case "quit" -> "quit";
         default -> help();
@@ -110,6 +110,30 @@ public class Client {
       for (var game : this.games){
         if (i == id){
           ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
+          return printBoard(game.game()) + "\n\n" + printBackwards(game.game());
+        }
+        i++;
+      }
+      throw new ResponseException(400, "invalid ID");
+    } else{
+      throw new ResponseException(400, "Expected: <your name> <password>");
+    }
+  }
+
+  public String observe(String[] params) throws ResponseException {
+    assertSignedIn();
+    int id;
+    if (params.length == 1) {
+//      ResponseObject response = server.joinGame(params[0], params[0]);
+      try {
+        id=Integer.parseInt(params[0]);
+      } catch (NumberFormatException e) {
+        throw new ResponseException(401, "input must be a valid index");
+      }
+      int i = 1;
+      for (var game : this.games){
+        if (i == id){
+//          ResponseObject response = server.joinGame(null, game.gameID());
           return printBoard(game.game()) + "\n\n" + printBackwards(game.game());
         }
         i++;

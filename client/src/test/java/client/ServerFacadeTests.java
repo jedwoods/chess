@@ -2,8 +2,11 @@
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.gamedatabase.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
+
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -109,14 +112,33 @@ public class ServerFacadeTests {
 
 
     @Test
-    void joinGame() {
-
+    void joinGame() throws ResponseException {
+        facade.register("joinGameuser", "rando pass", "email");
+        facade.createGame("game");
+        facade.createGame("game2");
+        HashSet<GameData> games = facade.listGames();
+        facade.joinGame("BLACK", games.iterator().next().gameID());
+        logout();
     }
 
     @Test
-    void invalidJoin(){
-
+    void invalidJoin() throws ResponseException {
+        server.clear();
+        facade.register("joinGameuser", "rando pass", "email");
+        facade.createGame("game");
+        facade.listGames();
+        assertThrows(ResponseException.class, () -> facade.joinGame("invalid color", 1));
+        logout();
     }
 
+    @Test
+    void invalidJoinID() throws ResponseException {
+        server.clear();
+        facade.register("joinGameuser", "rando pass", "email");
+        facade.createGame("game");
+        facade.listGames();
+        assertThrows(ResponseException.class, () -> facade.joinGame("invalid color", 1000000));
+        logout();
+    }
 
 }
