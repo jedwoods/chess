@@ -5,6 +5,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import dataaccess.userdatabase.User;
 import facade.ServerFacade;
 import records.GameData;
 import records.ResponseException;
@@ -13,6 +14,7 @@ import records.ResponseObject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -21,6 +23,7 @@ public class Client {
   State state;
   HashSet<GameData> games;
   List<String> letters;
+  String username;
 
 
 
@@ -43,8 +46,8 @@ public class Client {
                 - list - gets all games
                 - create <game name>
                 - playGame <game ID> [white|black]
-                - observe game <game ID>
-                - signOut
+                - observe <game ID>
+                - logout
                 - quit
                 """;
   }
@@ -93,7 +96,21 @@ public class Client {
       System.out.println("No games available");
     }
     for (var game : this.games) {
-      result.append(String.format("%d. %s%n", i, game.gameName())).append("\n");
+      result.append(String.format("%d. %s%n", i, game.gameName()));
+
+      result.append("WHITE PLAYER: ");
+      if (Objects.isNull(game.whiteUsername())){
+        result.append("None");
+      }else{
+        result.append(game.whiteUsername());
+      }
+      result.append(" BLACK PLAYER: ");
+      if (Objects.isNull(game.blackUsername())){
+        result.append("None");
+      }else{
+        result.append(game.blackUsername());
+      }
+      result.append("\n");
       i++;
     }
 
@@ -113,6 +130,16 @@ public class Client {
       int i = 1;
       for (var game : this.games){
         if (i == id){
+          if (params[1].strip().equalsIgnoreCase("WHITE")){
+            if (username.equals(game.whiteUsername())){
+              return printBoard(game.game());
+            }
+          }
+          if (params[1].toUpperCase().strip().equals("BLACK")){
+            if (username.equals(game.blackUsername())){
+              return printBoard(game.game());
+            }
+          }
           ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
           return printBoard(game.game());
         }
@@ -120,7 +147,7 @@ public class Client {
       }
       throw new ResponseException(400, "invalid ID");
     } else{
-      throw new ResponseException(400, "Expected: <your name> <password>");
+      throw new ResponseException(400, "Expected: playgame <gameID> <[BLACK|WHITE]>");
     }
   }
 
@@ -178,7 +205,7 @@ public class Client {
     appendColumnLabels(result);
 
     for (int row = 8; row >= 1; row--) {
-      appendRow(result, row, board);
+      reverseRow(result, row, board);
     }
 
 
@@ -186,12 +213,12 @@ public class Client {
 
     result.append("\n\n");
 
-    appendColumnLabels(result);
+    appendReverseLabels(result);
 
     for (int row = 1; row <= 8; row++) {
       appendRow(result, row, board);
     }
-    appendColumnLabels(result);
+    appendReverseLabels(result);
 
     return result.toString();
   }
@@ -204,11 +231,26 @@ public class Client {
     result.append("\n");
   }
 
+  private void appendReverseLabels(StringBuilder result) {
+    result.append("   ");
+    for (String c : letters.reversed()) {
+      result.append("  ").append(c).append("  ");
+    }
+    result.append("\n");
+  }
+
   private void appendRow(StringBuilder result, int row, ChessBoard board) {
     result.append(" ").append(row).append(" "); // Row label
     boardBuilder(result, row, board); // Build row content
     result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
   }
+
+  private void reverseRow(StringBuilder result, int row, ChessBoard board) {
+    result.append(" ").append(row).append(" "); // Row label
+    reversedBuilder(result, row, board); // Build row content
+    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
+  }
+
 
 
   public String logout() throws  ResponseException{
@@ -227,19 +269,21 @@ public class Client {
   public String register(String[] params) throws ResponseException {
     if (params.length == 3) {
       ResponseObject response= server.register(params[0], params[1], params[2]);
+      username = params[0];
       state=State.SIGNEDIN;
       return "";
     } else {
-      throw new ResponseException(400, "Expected: <your name> <password>");
+      throw new ResponseException(400, "Expected: <your name> <password> <email>");
     }
   }
   public String login(String[] params) throws ResponseException {
     if (params.length == 2) {
       ResponseObject response = server.login(params[0], params[1]);
       state = State.SIGNEDIN;
+      username = params[0];
       return "";
     } else{
-      throw new ResponseException(400, "Expected: <your name> <password>");
+      throw new ResponseException(400, "Expected: <your name> <password> <email>");
     }
 
   }
@@ -255,7 +299,7 @@ public class Client {
   public void boardBuilder(StringBuilder result, int row, ChessBoard board){
 //      result.append(" ").append(row).append(" ");
 
-      for (int col = 1; col <= 8; col++) {
+      for (int col = 8; col >= 1; col--) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
 
         if ((row + col) % 2 == 0) {
@@ -268,5 +312,25 @@ public class Client {
       }
       result.append(RESET_BG_COLOR).append(" ");
   }
+
+
+  public void reversedBuilder(StringBuilder result, int row, ChessBoard board){
+//      result.append(" ").append(row).append(" ");
+
+    for (int col = 1; col <= 8; col++) {
+      ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+
+      if ((row + col) % 2 == 0) {
+
+        result.append(SET_BG_COLOR_DARK_GREEN);
+      } else {
+        result.append(SET_BG_COLOR_LIGHT_GREY);
+      }
+
+      result.append(" ").append(getPiece(piece)).append(" ");
+    }
+    result.append(RESET_BG_COLOR).append(" ");
+  }
+
 
 }
