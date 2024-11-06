@@ -80,11 +80,11 @@ public class Client {
         case "create" -> newGame(params);
         case "observe" -> observe(params);
         case "register" -> register(params);
-        case "redraw" -> redraw(params);
-        case "leave" -> leave(params);
-        case "move" -> makeMove(params);
-        case "resign" -> resign(params);
-        case "highlightmoves" -> listMoves(params);
+//        case "redraw" -> redraw(params);
+//        case "leave" -> leave(params);
+//        case "move" -> makeMove(params);
+//        case "resign" -> resign(params);
+//        case "highlightmoves" -> listMoves(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -150,7 +150,7 @@ public class Client {
         if (i == id){
           if (params[1].strip().equalsIgnoreCase("WHITE")){
             if (username.equals(game.whiteUsername())){
-              state = State.PLAYING;
+              this.playing = GameState.PLAYING;
               return printBoard(game.game());
             }
           }
