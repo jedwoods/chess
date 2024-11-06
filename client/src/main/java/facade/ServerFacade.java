@@ -7,7 +7,7 @@ import java.util.HashSet;
 import com.google.gson.Gson;
 import records.*;
 import ui.LogoutObject;
-
+import ui.ServerObserver;
 
 
 public class ServerFacade {

@@ -16,6 +16,13 @@ import java.net.URISyntaxException;
 public class WebsocketFacade extends Endpoint {
 
 
+  public WebsocketFacade(){
+
+  }
+
+  public void onMessage() {
+
+  }
 
   public void send(String msg) throws Exception {}
 

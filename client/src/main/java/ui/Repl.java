@@ -5,12 +5,11 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 
-public class Repl {
+public class Repl implements ServerObserver {
   Client client;
 
   public Repl(String site){
-    this.client = new Client(site);
-
+    this.client = new Client(site, this);
   }
 
 
@@ -40,6 +39,8 @@ public class Repl {
     System.out.print("\n" + RESET_BG_COLOR + SET_TEXT_COLOR_BLUE + "[" + client.state + "] >>> " + SET_TEXT_COLOR_GREEN);
   }
 
-
-
+  @Override
+  public void notify(String message) {
+    System.out.println(message);
+  }
 }

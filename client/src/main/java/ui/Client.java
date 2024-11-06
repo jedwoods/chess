@@ -24,16 +24,31 @@ public class Client {
   HashSet<GameData> games;
   List<String> letters;
   String username;
+  GameState playing;
+  ServerObserver observer;
 
 
 
-  public Client(String site) {
+  public Client(String site, ServerObserver observer) {
     this.server = new ServerFacade(site);
     this.state = State.SIGNEDOUT;
     this.letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
+    this.playing = GameState.NOTPLAYING;
+    this.observer = observer;
   }
 
+
   public String help() {
+    if (this.playing == GameState.PLAYING){
+      return """
+                    - Help
+                    - Redraw
+                    - Leave
+                    - Move
+                    - Resign
+                    - HighlightMoves
+                    """;
+    }
     if (state == State.SIGNEDOUT) {
       return """
                     - login <username> <password>
@@ -52,8 +67,6 @@ public class Client {
                 """;
   }
 
-
-
   public String eval(String input) {
     try {
       var tokens = input.toLowerCase().split(" ");
@@ -67,6 +80,11 @@ public class Client {
         case "create" -> newGame(params);
         case "observe" -> observe(params);
         case "register" -> register(params);
+        case "redraw" -> redraw(params);
+        case "leave" -> leave(params);
+        case "move" -> makeMove(params);
+        case "resign" -> resign(params);
+        case "highlightmoves" -> listMoves(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -132,6 +150,7 @@ public class Client {
         if (i == id){
           if (params[1].strip().equalsIgnoreCase("WHITE")){
             if (username.equals(game.whiteUsername())){
+              state = State.PLAYING;
               return printBoard(game.game());
             }
           }
