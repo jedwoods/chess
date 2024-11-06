@@ -15,11 +15,11 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
   private final ConnectionManager connections = new ConnectionManager();
-  private Service service;
+  private final Service service;
 
-  public void connect(String authtoken, Session session){
-    connections.add(authtoken, session);
-    String name = service.getDB().getSession(authtoken).username();
+  public void connect(String authToken, Session session){
+    connections.add(authToken, session);
+    String name = service.getDB().getSession(authToken).username();
     String message = String.format("%s has joined your game", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
     connections.broadcast(name, notification);
@@ -31,6 +31,9 @@ public class WebSocketHandler {
     String message = String.format("%s has left your game", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
     connections.broadcast(name, notification);
+  }
+
+  public void resign(String authToken, Session session){
 
   }
 
@@ -49,7 +52,7 @@ public class WebSocketHandler {
       case UserGameCommand.CommandType.RESIGN -> resign(command.getAuthToken(), session);
       case CONNECT -> connect(command.getAuthToken(), session);
       case MAKE_MOVE -> makeMove();
-      case LEAVE -> leave();
+      case LEAVE -> leave(command.getAuthToken(), session);
     }
   }
 
