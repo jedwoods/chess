@@ -1,7 +1,7 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import server.websocket.WebSocketHandler;
 import spark.*;
 
 public class Server {
@@ -10,7 +10,7 @@ public class Server {
         handler.service.clear();
     }
 
-    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler(handler.service);
 
 
     public int run(int desiredPort) {
