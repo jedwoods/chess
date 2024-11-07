@@ -30,7 +30,7 @@ public class Client {
   WebsocketFacade ws;
   String site;
   int gameID;
-
+  ChessGame.TeamColor color;
 
 
 
@@ -87,7 +87,7 @@ public class Client {
         case "create" -> newGame(params);
         case "observe" -> observe(params);
         case "register" -> register(params);
-//        case "redraw" -> redraw(params);
+        case "redraw" -> redraw();
         case "leave" -> leave();
 //        case "move" -> makeMove(params);
 //        case "resign" -> resign(params);
@@ -98,6 +98,24 @@ public class Client {
     } catch (ResponseException ex) {
       return ex.getMessage();
     }
+  }
+
+  private String redraw() throws ResponseException {
+    assertSignedIn();
+    if (playing != GameState.PLAYING){
+      return "you are not playing a game";
+    }
+
+    this.server.listGames();
+    for (var c:this.games){
+      if (c.gameID() == this.gameID){
+        if (this.color == ChessGame.TeamColor.WHITE){
+          return printBlackBoard(c.game());
+        }
+        return printWhite(c.game());
+      }
+    }
+    return "can't find your game brother, sorry";
   }
 
   private String newGame(String[] params) throws ResponseException {
@@ -156,21 +174,23 @@ public class Client {
       for (var game : this.games){
         if (i == id){
           if (params[1].strip().equalsIgnoreCase("WHITE")){
+            this.color =ChessGame.TeamColor.WHITE;
             if (username.equals(game.whiteUsername())){
               this.playing = GameState.PLAYING;
               this.gameID = game.gameID();
               ws = new WebsocketFacade(this.site, observer);
               ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
-              return printBoard(game.game());
+              return printWhite(game.game());
             }
           }
           if (params[1].toUpperCase().strip().equals("BLACK")){
+            this.color =ChessGame.TeamColor.BLACK;
             if (username.equals(game.blackUsername())){
               this.playing = GameState.PLAYING;
               ws = new WebsocketFacade(this.site, observer);
               ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
               this.gameID = game.gameID();
-              return printBoard(game.game());
+              return printBlackBoard(game.game());
             }
           }
           ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
@@ -178,7 +198,11 @@ public class Client {
           ws = new WebsocketFacade(this.site, observer);
           ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
           this.gameID = game.gameID();
-          return printBoard(game.game());
+          if (this.color == ChessGame.TeamColor.WHITE){
+          return printWhite(game.game());}
+          else{
+            return printBlackBoard(game.game());
+          }
         }
         i++;
       }
@@ -187,7 +211,6 @@ public class Client {
       throw new ResponseException(400, "Expected: playgame <gameID> <[BLACK|WHITE]>");
     }
   }
-
   public String observe(String[] params) throws ResponseException {
     assertSignedIn();
     int id;
@@ -234,6 +257,34 @@ public class Client {
     };
   }
 
+
+  public String printBlackBoard(ChessGame game){
+    ChessBoard board = game.getBoard();
+    var result = new StringBuilder();
+
+    appendColumnLabels(result);
+
+    for (int row = 8; row >= 1; row--) {
+      reverseRow(result, row, board);
+    }
+
+
+    appendColumnLabels(result);
+    return result.toString();
+  }
+
+  public String printWhite(ChessGame game){
+    ChessBoard board = game.getBoard();
+    var result = new StringBuilder();
+    appendReverseLabels(result);
+
+    for (int row = 1; row <= 8; row++) {
+      appendRow(result, row, board);
+    }
+    appendReverseLabels(result);
+
+    return result.toString();
+  }
 
   public String printBoard(ChessGame game) {
     ChessBoard board = game.getBoard();

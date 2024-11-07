@@ -53,6 +53,8 @@ public class WebSocketHandler {
   }
 
 
+
+
   //  @OnWebSocketConnect
   public void connect(String message, Session session) throws IOException {
     JoinGameCommand command = new Gson().fromJson(message, JoinGameCommand.class);
