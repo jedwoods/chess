@@ -403,20 +403,22 @@ public class Client {
       throw new ResponseException(500, "expected: HighlightMoves <location>");
     }
     ChessPosition start = assertCord(params[0]);
+
     for (var c : this.games) {
       if (c.gameID() == this.gameID) {
         Collection<ChessMove> moves = c.game().validMoves(start);
+//        System.out.println(this.getPiece(c.game().getBoard().getPiece(start)));
         if (this.color == ChessGame.TeamColor.BLACK) {
 
-          return printValidWhite(start,moves, c.game());
+          return printValidBlack(start,moves, c.game());
         }
         else{
-          return printValidBlack(start,moves, c.game());
+          return printValidWhite(start,moves, c.game());
 
         }
       }
     }
-
+    throw new ResponseException(500, "could not validate game");
   }
 
   private String printValidBlack(ChessPosition start, Collection<ChessMove> moves, ChessGame game) {
@@ -440,7 +442,9 @@ public class Client {
     var result=new StringBuilder();
     appendColumnLabels(result);
     for (int row=8; row >= 1; row--) {
+      result.append(" ").append(row).append(" ");
       reverseHighlight(result, row, board, start, moves);
+      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n");
     }
     appendColumnLabels(result);
     return result.toString();
@@ -464,18 +468,53 @@ public class Client {
     result.append(RESET_BG_COLOR).append(" ");
   }
 
-  private void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
-    boolean flag = false;
+
+
+  private boolean validMove(int row, int col, Collection<ChessMove> moves, ChessPosition start, ChessBoard board){
     ChessPosition end = new ChessPosition(row, col);
-    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
+
     for (ChessMove move : moves){
-      if (move.getStartPosition() ==start && move.getEndPosition() == end ){
-        flag = true;
-        break;
+      int first = move.getStartPosition().getColumn();
+      int second = move.getStartPosition().getRow();
+      int third = move.getEndPosition().getRow();
+      int fourth = move.getEndPosition().getColumn();
+      if (first==start.getColumn() && second == start.getRow() && third == end.getRow() && fourth == end.getColumn() ){
+        return true;
+
       }
     }
+    return false;
+  }
+
+  private void reverseRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col){
+
+    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
+    boolean flag = validMove(row, col, moves, start, board);
     if (flag){
-      result.append(SET_BG_COLOR_RED);
+      if ((row + col) % 2 != 0) {
+        result.append(SET_BG_COLOR_WHITE);
+      } else {
+        result.append(SET_BG_COLOR_GREEN);
+      }
+    }else{
+      if ((row + col) % 2 != 0) {
+        result.append(SET_BG_COLOR_LIGHT_GREY);
+      } else {
+        result.append(SET_BG_COLOR_DARK_GREEN);
+      }
+    }
+
+    result.append(" ").append(getPiece(piece)).append(" ");
+  }
+  private void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
+    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
+    boolean flag = validMove(row, col, moves, start, board);
+    if (flag){
+      if ((row + col) % 2 == 0) {
+        result.append(SET_BG_COLOR_WHITE);
+      } else {
+        result.append(SET_BG_COLOR_GREEN);
+      }
     }else{
       if ((row + col) % 2 == 0) {
         result.append(SET_BG_COLOR_LIGHT_GREY);
@@ -492,11 +531,14 @@ public class Client {
     if (move.length() != 2){
       throw new ResponseException(500, "expect: <row><col>");
     }
-    char col = move.charAt(0);
-    int row = move.charAt(1) - 'a' + 1;
+    int col = move.charAt(0) - 'a' + 1;
+    int row = Character.getNumericValue(move.charAt(1));
+    if (row < 0){
+      row *= -1;
+    }
 
-    if(col >= 'a' && col <= 'h' && row >= 1 && row <= 8){
-      return new ChessPosition(row - 'a' + 1, col);
+    if(col >= 1 && col <= 8 && row >= 1 && row <= 8){
+      return new ChessPosition( row, col);
     }
     throw new ResponseException(500, "position out of board");
   }
