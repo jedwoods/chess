@@ -9,6 +9,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.Service;
+import websocket.commands.JoinGameCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.Error;
@@ -24,12 +25,19 @@ public class WebSocketHandler {
   private final ConnectionManager connections = new ConnectionManager();
   private final Service service;
 
-  public void connect(String authToken, Session session) throws IOException {
-    connections.add(authToken, session);
-    String name = service.getDB().getSession(authToken).username();
-    String message = String.format("%s has joined your game", name);
-    var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-    connections.broadcast(authToken, notification);
+  public void connect(String message, Session session) throws IOException {
+    JoinGameCommand command = new Gson().fromJson(message, JoinGameCommand.class);
+    connections.add(command.getAuthToken(), session);
+    String name = service.getDB().getSession(command.getAuthToken()).username();
+    if (command.getColor() == null) {
+      String messageReturn=String.format("%s has joined your game", name);
+      var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, messageReturn);
+      connections.broadcast(command.getAuthToken(), notification);
+    }else{
+      String messageReturn=String.format("%s has joined your game as %s", name, command.getColor());
+      var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, messageReturn);
+      connections.broadcast(command.getAuthToken(), notification);
+    }
   }
 
   public void leave(String authToken) throws IOException {
@@ -55,7 +63,7 @@ public class WebSocketHandler {
   }
 
   @OnWebSocketMessage
-  public void onMessage(Session session, String message) throws IOException {
+  public void onMessage(String message, Session session) throws IOException {
     UserGameCommand command=  new Gson().fromJson(message, UserGameCommand.class);
     AuthToken token = service.getDB().getSession(command.getAuthToken());
     GameData game = service.getDB().getGame(command.getGameID());
@@ -70,7 +78,7 @@ public class WebSocketHandler {
 
     switch (command.getCommandType()) {
       case RESIGN -> resign(command.getAuthToken(), command.getGameID());
-      case CONNECT -> connect(command.getAuthToken(), session);
+      case CONNECT -> connect(message, session);
       case LEAVE -> leave(command.getAuthToken());
       case MAKE_MOVE -> makeMove(message);
     }
@@ -93,5 +101,6 @@ public class WebSocketHandler {
     var move = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     connections.broadcast(command.getAuthToken(), move);
   }
+
 
 }
