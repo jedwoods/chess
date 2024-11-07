@@ -32,7 +32,7 @@ public class WebSocketHandler {
     connections.broadcast(authToken, notification);
   }
 
-  public void leave(String authToken, Session session) throws IOException {
+  public void leave(String authToken) throws IOException {
     connections.remove(authToken);
     String name = service.getDB().getSession(authToken).username();
     String message = String.format("%s has left your game", name);
@@ -40,20 +40,19 @@ public class WebSocketHandler {
     connections.broadcast(authToken, notification);
   }
 
-  public void resign(String authToken, Session session) throws IOException {
+  public void resign(String authToken,int gameID) throws IOException {
     String name = service.getDB().getSession(authToken).username();
+    ChessGame game = service.getDB().getGame(gameID).game();
+    game.resign(game.getTeamTurn());
     String message = String.format("%s has resigned", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
     connections.broadcast(authToken, notification);
   }
 
 
-
-
   public WebSocketHandler(Service service){
     this.service = service;
   }
-
 
   @OnWebSocketMessage
   public void onMessage(Session session, String message) throws IOException {
@@ -70,9 +69,9 @@ public class WebSocketHandler {
     }
 
     switch (command.getCommandType()) {
-      case RESIGN -> resign(command.getAuthToken(), session);
+      case RESIGN -> resign(command.getAuthToken(), command.getGameID());
       case CONNECT -> connect(command.getAuthToken(), session);
-      case LEAVE -> leave(command.getAuthToken(), session);
+      case LEAVE -> leave(command.getAuthToken());
       case MAKE_MOVE -> makeMove(message);
     }
   }

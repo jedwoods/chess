@@ -15,6 +15,7 @@ import java.util.HashSet;
 public class ChessGame {
     TeamColor currentTeam;
     ChessBoard board = new ChessBoard();
+    TeamColor winner = null;
 
     public ChessGame() {
         board.resetBoard();
@@ -162,10 +163,20 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        if (winner != teamColor && winner != null){
+            return true;
+        }
 
         return possibleMoves(teamColor).isEmpty() && isInCheck(teamColor);
     }
 
+    public void resign(TeamColor teamColor){
+        if (teamColor == TeamColor.WHITE){
+            winner = TeamColor.BLACK;
+        }else{
+            winner = TeamColor.BLACK;
+        }
+    }
 
     public Collection<ChessMove> possibleMoves(TeamColor teamColor){
         Collection<ChessMove> allMoves = new HashSet<>();
