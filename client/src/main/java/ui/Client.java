@@ -1,5 +1,5 @@
 package ui;
-
+import websocket.*;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
@@ -10,6 +10,7 @@ import facade.ServerFacade;
 import records.GameData;
 import records.ResponseException;
 import records.ResponseObject;
+import websocket.WebsocketFacade;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,6 +27,10 @@ public class Client {
   String username;
   GameState playing;
   ServerObserver observer;
+  WebsocketFacade ws;
+  String site;
+  int gameID;
+
 
 
 
@@ -35,6 +40,8 @@ public class Client {
     this.letters = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h");
     this.playing = GameState.NOTPLAYING;
     this.observer = observer;
+    this.site = site;
+
   }
 
 
@@ -81,7 +88,7 @@ public class Client {
         case "observe" -> observe(params);
         case "register" -> register(params);
 //        case "redraw" -> redraw(params);
-//        case "leave" -> leave(params);
+        case "leave" -> leave();
 //        case "move" -> makeMove(params);
 //        case "resign" -> resign(params);
 //        case "highlightmoves" -> listMoves(params);
@@ -151,15 +158,26 @@ public class Client {
           if (params[1].strip().equalsIgnoreCase("WHITE")){
             if (username.equals(game.whiteUsername())){
               this.playing = GameState.PLAYING;
+              this.gameID = game.gameID();
+              ws = new WebsocketFacade(this.site, observer);
+              ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
               return printBoard(game.game());
             }
           }
           if (params[1].toUpperCase().strip().equals("BLACK")){
             if (username.equals(game.blackUsername())){
+              this.playing = GameState.PLAYING;
+              ws = new WebsocketFacade(this.site, observer);
+              ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
+              this.gameID = game.gameID();
               return printBoard(game.game());
             }
           }
           ResponseObject response = server.joinGame(params[1].toUpperCase(), game.gameID());
+          this.playing = GameState.PLAYING;
+          ws = new WebsocketFacade(this.site, observer);
+          ws.playGame(params[1], this.server.getAuthToken(),game.gameID());
+          this.gameID = game.gameID();
           return printBoard(game.game());
         }
         i++;
@@ -351,5 +369,15 @@ public class Client {
     result.append(RESET_BG_COLOR).append(" ");
   }
 
-
+public String leave() throws ResponseException {
+  assertSignedIn();
+  if (playing != GameState.PLAYING){
+    return "you are not playing a game";
+  }
+  ws.leaveGame(server.getAuthToken(), this.gameID);
+  gameID = -1;
+  ws = null;
+  playing = GameState.NOTPLAYING;
+  return "You have left the game";
+}
 }

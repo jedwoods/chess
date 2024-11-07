@@ -20,6 +20,9 @@ public class ServerFacade {
     this.serverUrl=serverUrl;
   }
 
+  public String getAuthToken(){
+    return this.authToken;
+  }
 
 
   public ResponseObject createGame(String gameName) throws ResponseException {

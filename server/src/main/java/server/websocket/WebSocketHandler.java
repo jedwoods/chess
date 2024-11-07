@@ -5,6 +5,7 @@ import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.authdatabase.AuthToken;
 import dataaccess.gamedatabase.GameData;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -25,6 +26,34 @@ public class WebSocketHandler {
   private final ConnectionManager connections = new ConnectionManager();
   private final Service service;
 
+  public WebSocketHandler(Service service){
+    this.service = service;
+  }
+
+  @OnWebSocketMessage
+  public void onMessage(String message, Session session) throws IOException {
+    UserGameCommand command=  new Gson().fromJson(message, UserGameCommand.class);
+    AuthToken token = service.getDB().getSession(command.getAuthToken());
+    GameData game = service.getDB().getGame(command.getGameID());
+    if (token == null){
+      session.getRemote().sendString("error invalid token");
+      return;
+    }
+    if (game== null){
+      session.getRemote().sendString("error invalid GameID");
+      return;
+    }
+
+    switch (command.getCommandType()) {
+      case RESIGN -> resign(command.getAuthToken(), command.getGameID());
+      case CONNECT -> connect(message, session);
+      case LEAVE -> leave(command.getAuthToken());
+      case MAKE_MOVE -> makeMove(message);
+    }
+  }
+
+
+  //  @OnWebSocketConnect
   public void connect(String message, Session session) throws IOException {
     JoinGameCommand command = new Gson().fromJson(message, JoinGameCommand.class);
     connections.add(command.getAuthToken(), session);
@@ -58,31 +87,7 @@ public class WebSocketHandler {
   }
 
 
-  public WebSocketHandler(Service service){
-    this.service = service;
-  }
 
-  @OnWebSocketMessage
-  public void onMessage(String message, Session session) throws IOException {
-    UserGameCommand command=  new Gson().fromJson(message, UserGameCommand.class);
-    AuthToken token = service.getDB().getSession(command.getAuthToken());
-    GameData game = service.getDB().getGame(command.getGameID());
-    if (token == null){
-      session.getRemote().sendString("error invalid token");
-      return;
-    }
-    if (game== null){
-      session.getRemote().sendString("error invalid GameID");
-      return;
-    }
-
-    switch (command.getCommandType()) {
-      case RESIGN -> resign(command.getAuthToken(), command.getGameID());
-      case CONNECT -> connect(message, session);
-      case LEAVE -> leave(command.getAuthToken());
-      case MAKE_MOVE -> makeMove(message);
-    }
-  }
 
   private void makeMove(String message) throws IOException {
     MakeMoveCommand command=  new Gson().fromJson(message, MakeMoveCommand.class);

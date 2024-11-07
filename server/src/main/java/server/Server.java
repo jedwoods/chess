@@ -1,9 +1,16 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.websocket.WebSocketHandler;
+
+import org.eclipse.jetty.websocket.api.Session;
 import spark.*;
 
+import java.io.IOException;
+
+@WebSocket
 public class Server {
     Handler handler= new Handler();
     public void clear(){
@@ -18,8 +25,8 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         // Register your endpoints and handle exceptions here.
-
-        Spark.webSocket("/ws", webSocketHandler);
+        Spark.webSocket("/ws", Server.class);
+//        Spark.webSocket("/ws", WebSocketHandler.class);
 
         Spark.delete("/db", handler::clear);
         Spark.post("/user", handler::register);
@@ -52,6 +59,9 @@ public class Server {
         Spark.awaitStop();
     }
 
-
+    @OnWebSocketMessage
+    public void message(Session session, String message) throws IOException {
+        webSocketHandler.onMessage(message, session);
+    }
 
 }

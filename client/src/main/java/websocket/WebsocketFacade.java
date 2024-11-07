@@ -4,7 +4,6 @@ package websocket;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import org.glassfish.tyrus.core.wsadl.model.Endpoint;
 import records.ResponseException;
 import ui.ServerObserver;
 import websocket.commands.JoinGameCommand;
@@ -30,8 +29,10 @@ public class WebsocketFacade extends Endpoint {
       url = url.replace("http", "ws");
       URI socketURI = new URI(url + "/ws");
       this.notificationHandler = notificationHandler;
+
       WebSocketContainer container = ContainerProvider.getWebSocketContainer();
       this.session=container.connectToServer(this, socketURI);
+
       session.addMessageHandler(new MessageHandler.Whole<String>() {
         @Override
         public void onMessage(String message) {
@@ -43,6 +44,7 @@ public class WebsocketFacade extends Endpoint {
     }
   }
 
+  @Override
   public void onOpen(Session session, EndpointConfig endpointConfig) {
   }
 
@@ -70,7 +72,13 @@ public class WebsocketFacade extends Endpoint {
     }
   }
 
-  public void leaveGame(){
+  public void leaveGame(String authToken, int gameID) throws ResponseException {
+    try{
+      var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+      this.session.getBasicRemote().sendText(new Gson().toJson(action));
+    } catch (IOException e) {
+      throw new ResponseException(500, e.getMessage());
+    }
 
   }
   }
