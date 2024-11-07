@@ -11,5 +11,4 @@ public class Notification extends ServerMessage{
   public String getMesssage(){
     return this.messsage;
   }
-
 }

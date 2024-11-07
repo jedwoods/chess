@@ -1,6 +1,8 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.authdatabase.AuthToken;
+import dataaccess.gamedatabase.GameData;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -17,24 +19,27 @@ public class WebSocketHandler {
   private final ConnectionManager connections = new ConnectionManager();
   private final Service service;
 
-  public void connect(String authToken, Session session){
+  public void connect(String authToken, Session session) throws IOException {
     connections.add(authToken, session);
     String name = service.getDB().getSession(authToken).username();
     String message = String.format("%s has joined your game", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-    connections.broadcast(name, notification);
+    connections.broadcast(authToken, notification);
   }
 
-  public void leave(String authToken, Session session){
-    connections.remove(authToken, session);
+  public void leave(String authToken, Session session) throws IOException {
+    connections.remove(authToken);
     String name = service.getDB().getSession(authToken).username();
     String message = String.format("%s has left your game", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-    connections.broadcast(name, notification);
+    connections.broadcast(authToken, notification);
   }
 
-  public void resign(String authToken, Session session){
-
+  public void resign(String authToken, Session session) throws IOException {
+    String name = service.getDB().getSession(authToken).username();
+    String message = String.format("%s has resigned", name);
+    var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+    connections.broadcast(authToken, notification);
   }
 
 
@@ -48,10 +53,20 @@ public class WebSocketHandler {
   @OnWebSocketMessage
   public void onMessage(Session session, String message) throws IOException {
     UserGameCommand command=  new Gson().fromJson(message, UserGameCommand.class);
+    AuthToken token = service.getDB().getSession(command.getAuthToken());
+    GameData game = service.getDB().getGame(command.getGameID());
+    if (token == null){
+      session.getRemote().sendString("error invalid token");
+      return;
+    }
+    if (game== null){
+      session.getRemote().sendString("error invalid GameID");
+      return;
+    }
+
     switch (command.getCommandType()) {
-      case UserGameCommand.CommandType.RESIGN -> resign(command.getAuthToken(), session);
+      case RESIGN -> resign(command.getAuthToken(), session);
       case CONNECT -> connect(command.getAuthToken(), session);
-      case MAKE_MOVE -> makeMove();
       case LEAVE -> leave(command.getAuthToken(), session);
     }
   }
