@@ -60,7 +60,7 @@ public class Repl implements ServerObserver {
       System.out.println(new Gson().fromJson(message, Error.class).getErrorMessage());
     }else if (note.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
       var game = new Gson().fromJson(message, LoadGameMessage.class).getGame();
-      System.out.println(this.client.printBoard(game));
+      System.out.println(this.client.printWhite(game));
     }else {
       System.out.println(message);
     }

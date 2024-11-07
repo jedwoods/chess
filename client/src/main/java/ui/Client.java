@@ -217,7 +217,7 @@ public class Client {
       for (var game : this.games) {
         if (i == id) {
 //          records.ResponseObject response = server.joinGame(null, game.gameID());
-          return printBoard(game.game());
+          return printWhite(game.game());
         }
         i++;
       }
@@ -278,30 +278,6 @@ public class Client {
     return result.toString();
   }
 
-  public String printBoard(ChessGame game) {
-    ChessBoard board=game.getBoard();
-    var result=new StringBuilder();
-
-    appendColumnLabels(result);
-
-    for (int row=8; row >= 1; row--) {
-      reverseRow(result, row, board);
-    }
-
-
-    appendColumnLabels(result);
-
-    result.append("\n\n");
-
-    appendReverseLabels(result);
-
-    for (int row=1; row <= 8; row++) {
-      appendRow(result, row, board);
-    }
-    appendReverseLabels(result);
-
-    return result.toString();
-  }
 
   private void appendColumnLabels(StringBuilder result) {
     result.append("   ");
@@ -429,30 +405,87 @@ public class Client {
     ChessPosition start = assertCord(params[0]);
     for (var c : this.games) {
       if (c.gameID() == this.gameID) {
+        Collection<ChessMove> moves = c.game().validMoves(start);
         if (this.color == ChessGame.TeamColor.BLACK) {
-          Collection<ChessMove> moves = c.game().validMoves(start);
-          return printValidBoard(start,moves);
+
+          return printValidWhite(start,moves, c.game());
+        }
+        else{
+          return printValidBlack(start,moves, c.game());
+
         }
       }
     }
 
   }
 
-  private String printValidBoard(ChessPosition start, Collection<ChessMove> moves) {
+  private String printValidBlack(ChessPosition start, Collection<ChessMove> moves, ChessGame game) {
+    ChessBoard board=game.getBoard();
+    var result=new StringBuilder();
+    appendReverseLabels(result);
 
+    for (int row=1; row <= 8; row++) {
+      result.append(" ").append(row).append(" ");
+      highlightBuilder(result, row, board, start, moves);
+      result.append(RESET_BG_COLOR).append(" ").append(row).append("\n");
+    }
+    appendReverseLabels(result);
+
+    return result.toString();
   }
 
 
+  private String printValidWhite(ChessPosition start, Collection<ChessMove> moves, ChessGame game) {
+    ChessBoard board=game.getBoard();
+    var result=new StringBuilder();
+    appendColumnLabels(result);
+    for (int row=8; row >= 1; row--) {
+      reverseHighlight(result, row, board, start, moves);
+    }
+    appendColumnLabels(result);
+    return result.toString();
+  }
 
 
+  public void highlightBuilder(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
+
+    for (int col=8; col >= 1; col--) {
+      colorRow(result, row, board, start, moves, col);
+    }
+    result.append(RESET_BG_COLOR).append(" ");
+  }
 
 
+  public void reverseHighlight(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
 
+    for (int col=1; col <= 8; col++) {
+      colorRow(result, row, board, start, moves, col);
+    }
+    result.append(RESET_BG_COLOR).append(" ");
+  }
 
+  private void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
+    boolean flag = false;
+    ChessPosition end = new ChessPosition(row, col);
+    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
+    for (ChessMove move : moves){
+      if (move.getStartPosition() ==start && move.getEndPosition() == end ){
+        flag = true;
+        break;
+      }
+    }
+    if (flag){
+      result.append(SET_BG_COLOR_RED);
+    }else{
+      if ((row + col) % 2 == 0) {
+        result.append(SET_BG_COLOR_LIGHT_GREY);
+      } else {
+        result.append(SET_BG_COLOR_DARK_GREEN);
+      }
+    }
 
-
-
-
+    result.append(" ").append(getPiece(piece)).append(" ");
+  }
 
 
   public ChessPosition assertCord(String move) throws ResponseException {
@@ -468,3 +501,4 @@ public class Client {
     throw new ResponseException(500, "position out of board");
   }
 }
+
