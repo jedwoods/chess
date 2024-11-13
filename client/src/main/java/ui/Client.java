@@ -81,7 +81,7 @@ public class Client {
         case "redraw" -> redraw();
         case "leave" -> leave();
 //        case "move" -> makeMove(params);
-//        case "resign" -> resign(params);
+        case "resign" -> resign();
         case "highlightmoves" -> listMoves(params);
         case "quit" -> "quit";
         default -> help();
@@ -89,6 +89,20 @@ public class Client {
     } catch (ResponseException ex) {
       return ex.getMessage();
     }
+  }
+
+  private String resign() throws ResponseException {
+    assertSignedIn();
+    if (playing != GameState.PLAYING) {
+      return "you are not playing a game";
+    }
+    System.out.print("Do you want to resign?\nY|N\n");
+    Scanner scanner = new Scanner(System.in);
+    String res = scanner.nextLine().strip();
+    if (res.equalsIgnoreCase("y")){
+      ws.resign(server.getAuthToken(), this.gameID);
+    }
+    return "";
   }
 
 
@@ -311,8 +325,12 @@ public class Client {
   public String logout() throws ResponseException {
     assertSignedIn();
     try {
+      if (this.playing == GameState.PLAYING){
+        this.leave();
+      }
       server.logout();
       state=State.SIGNEDOUT;
+
       return "You have been logged out";
     } catch (Exception e) {
       throw new ResponseException(500, "Failed to logout");
@@ -356,7 +374,7 @@ public class Client {
     for (int col=8; col >= 1; col--) {
       ChessPiece piece=board.getPiece(new ChessPosition(row, col));
 
-      if ((row + col) % 2 == 0) {
+      if ((row + col) % 2 != 0) {
         result.append(SET_BG_COLOR_LIGHT_GREY);
       } else {
         result.append(SET_BG_COLOR_DARK_GREEN);
@@ -454,7 +472,7 @@ public class Client {
   public void highlightBuilder(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
 
     for (int col=8; col >= 1; col--) {
-      colorRow(result, row, board, start, moves, col);
+      reverseRow(result, row, board, start, moves, col);
     }
     result.append(RESET_BG_COLOR).append(" ");
   }

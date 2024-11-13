@@ -81,7 +81,13 @@ public class WebsocketFacade extends Endpoint {
     }
 
   }
+
+  public void resign(String authToken, int gameID) {
+    UserGameCommand action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID)
+
+
   }
+}
 
 
 
