@@ -81,16 +81,17 @@ public class WebSocketHandler {
 
   public void resign(String authToken,int gameID) throws IOException {
     String name = service.getDB().getSession(authToken).username();
-    ChessGame game = service.getDB().getGame(gameID).game();
+    GameData chessGame = service.getDB().getGame(gameID);
+    ChessGame game =chessGame.game();
     game.resign(game.getTeamTurn());
+    service.getDB().removeGame(chessGame);
+    service.getDB().reAddGame(new GameData(chessGame.gameID(), chessGame.whiteUsername(), chessGame.blackUsername(), chessGame.gameName(), game));
     String message = String.format("%s has resigned", name);
     var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
     connections.broadcast(authToken, notification);
   }
 
-
-
-
+  
   private void makeMove(String message) throws IOException {
     MakeMoveCommand command=  new Gson().fromJson(message, MakeMoveCommand.class);
     ChessGame game = service.getDB().getGame(command.getGameID()).game();

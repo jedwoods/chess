@@ -80,7 +80,7 @@ public class Client {
         case "register" -> register(params);
         case "redraw" -> redraw();
         case "leave" -> leave();
-//        case "move" -> makeMove(params);
+        case "move" -> makeMove(params);
         case "resign" -> resign();
         case "highlightmoves" -> listMoves(params);
         case "quit" -> "quit";
@@ -89,6 +89,30 @@ public class Client {
     } catch (ResponseException ex) {
       return ex.getMessage();
     }
+  }
+
+  private String makeMove(String[] params) throws ResponseException {
+    assertSignedIn();
+    if (playing != GameState.PLAYING) {
+      return "you are not playing a game";
+    }
+    if (params.length != 2 && params.length != 3) {
+      throw new ResponseException(500, "expected: makeMove <from> <to>");
+    }
+    ChessPosition start = assertCord(params[0]);
+    ChessPosition end = assertCord(params[1]);
+    String promotion = null;
+    if (params.length == 3){
+      promotion = params[2];
+    }
+
+    try{
+      ws.makeMove(start, end, promotion);
+      return String.format("%s ", "invalid move");
+    }catch (ResponseException e){
+      throw new ResponseException(500, e.getMessage());
+    }
+
   }
 
   private String resign() throws ResponseException {

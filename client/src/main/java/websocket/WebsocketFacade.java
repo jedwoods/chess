@@ -3,6 +3,7 @@ package websocket;
 
 
 import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import records.ResponseException;
 import ui.ServerObserver;
@@ -87,6 +88,10 @@ public class WebsocketFacade extends Endpoint {
 
 
   }
+
+  public void makeMove(ChessPosition start, ChessPosition end, String promotion) {
+  }
+
 }
 
 
