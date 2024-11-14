@@ -2,7 +2,9 @@ package websocket;
 
 
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import records.ResponseException;
@@ -89,7 +91,29 @@ public class WebsocketFacade extends Endpoint {
 
   }
 
-  public void makeMove(ChessPosition start, ChessPosition end, String promotion) {
+  public void makeMove(ChessPosition start, ChessPosition end, String promotion) throws ResponseException {
+    ChessPiece.PieceType prom = pieceMap(promotion);
+
+
+  }
+
+  private ChessPiece.PieceType pieceMap(String promotion) throws ResponseException {
+    switch (promotion.toLowerCase()){
+      case "pawn" -> {
+        return ChessPiece.PieceType.PAWN;
+      }
+      case "rook" ->{
+        return ChessPiece.PieceType.ROOK;
+      }
+      case "knight" ->{
+        return ChessPiece.PieceType.KNIGHT;
+      }case "bishop" ->{
+        return ChessPiece.PieceType.BISHOP;
+      }case "queen" ->{
+        return ChessPiece.PieceType.QUEEN;
+      }
+    }
+    throw new ResponseException(500, String.format("%s is not a valid promotion piece", promotion));
   }
 
 }
