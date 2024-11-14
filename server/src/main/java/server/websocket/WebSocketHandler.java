@@ -36,17 +36,22 @@ public class WebSocketHandler {
     UserGameCommand command=  new Gson().fromJson(message, UserGameCommand.class);
     AuthToken token = service.getDB().getSession(command.getAuthToken());
     GameData game = service.getDB().getGame(command.getGameID());
+    connections.add(command.getAuthToken(), session);
     if (token == null){
-      session.getRemote().sendString("error invalid token");
+      Error error = new Error(ServerMessage.ServerMessageType.ERROR, "invalid game authtoken");
+      connections.sendMessage(command.getAuthToken(), error);
       return;
     }
     if (game== null){
-      session.getRemote().sendString("error invalid GameID");
+
+//      session.getRemote().sendString("error invalid GameID");
+      Error error = new Error(ServerMessage.ServerMessageType.ERROR, "invalid game id");
+      connections.sendMessage(command.getAuthToken(), error);
       return;
     }
 
     switch (command.getCommandType()) {
-      case RESIGN -> resign(command.getAuthToken(), command.getGameID());
+      case RESIGN -> resign(command.getAuthToken(), command.getGameID(), command);
       case CONNECT -> connect(message, session);
       case LEAVE -> leave(command.getAuthToken());
       case MAKE_MOVE -> makeMove(message);
@@ -61,15 +66,24 @@ public class WebSocketHandler {
     JoinGameCommand command = new Gson().fromJson(message, JoinGameCommand.class);
     connections.add(command.getAuthToken(), session);
     String name = service.getDB().getSession(command.getAuthToken()).username();
+    ChessGame game = service.getDB().getGame(command.getGameID()).game();
     if (command.getColor() == null) {
       String messageReturn=String.format("%s has joined your game", name);
+      var obs = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+      connections.sendMessage(command.getAuthToken(), obs);
+
       var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, messageReturn);
       connections.broadcast(command.getAuthToken(), notification);
+
     }else{
+      var obs = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+      connections.sendMessage(command.getAuthToken(), obs);
       String messageReturn=String.format("%s has joined your game as %s", name, command.getColor());
       var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, messageReturn);
       connections.broadcast(command.getAuthToken(), notification);
+
     }
+
   }
 
   public void leave(String authToken) throws IOException {
@@ -80,10 +94,17 @@ public class WebSocketHandler {
     connections.broadcast(authToken, notification);
   }
 
-  public void resign(String authToken,int gameID) throws IOException {
+  public void resign(String authToken,int gameID, UserGameCommand command) throws IOException {
     String name = service.getDB().getSession(authToken).username();
     GameData chessGame = service.getDB().getGame(gameID);
     ChessGame game =chessGame.game();
+    String username = service.getDB().getSession(command.getAuthToken()).username();
+    GameData data = service.getDB().getGame(gameID);
+    if (!Objects.equals(name, data.blackUsername()) && !Objects.equals(username, data.whiteUsername())){
+      Error error = new Error(ServerMessage.ServerMessageType.ERROR,"observers can't resign");
+      connections.sendMessage(command.getAuthToken(), error);
+      return;
+    }
 
 
       String winn;
@@ -102,8 +123,6 @@ public class WebSocketHandler {
 
 
   private void makeMove(String message) throws IOException {
-
-
     MakeMoveCommand command=new Gson().fromJson(message, MakeMoveCommand.class);
     ChessGame game=service.getDB().getGame(command.getGameID()).game();
     GameData chessGame = service.getDB().getGame(command.getGameID());
@@ -115,15 +134,13 @@ public class WebSocketHandler {
     String winner = service.getDB().getWinner(chessGame.gameID());
     if (!Objects.equals(winner, null)){
       String observe = String.format("%s has already won the game", winner);
-      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, observe));
+      connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, observe));
       return;
     }
-    if (!command.getColor().toString().toLowerCase().equals(turn)){
-      System.out.println(command.getColor().toString());
-      System.out.println(turn);
-      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Not your turn"));
-      return;
-    }
+//    if (!command.getColor().toString().toLowerCase().equals(turn)){
+//      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Not your turn"));
+//      return;
+//    }
 
     try {
       game.makeMove(command.getMove());
