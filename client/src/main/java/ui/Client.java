@@ -198,55 +198,52 @@ public class Client {
 
   public String joinGame(String[] params) throws ResponseException {
     assertSignedIn();
-    int id;
-    if (params.length == 2) {
-//      records.ResponseObject response = server.joinGame(params[0], params[0]);
-      try {
-        id=Integer.parseInt(params[0]);
-      } catch (NumberFormatException e) {
-        throw new ResponseException(401, "input must be a valid index");
-      }
-      int i=1;
-      for (var game : this.games) {
-        if (i == id) {
-          if (params[1].strip().equalsIgnoreCase("WHITE")) {
-            this.color=ChessGame.TeamColor.WHITE;
-            if (username.equals(game.whiteUsername())) {
-              this.playing=GameState.PLAYING;
-              this.gameID=game.gameID();
-              ws=new WebsocketFacade(this.site, observer);
-              ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
-              return printWhite(game.game());
-            }
-          }
-          if (params[1].toUpperCase().strip().equals("BLACK")) {
-            this.color=ChessGame.TeamColor.BLACK;
-            if (username.equals(game.blackUsername())) {
-              this.playing=GameState.PLAYING;
-              ws=new WebsocketFacade(this.site, observer);
-              ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
-              this.gameID=game.gameID();
-              return printBlackBoard(game.game());
-            }
-          }
-          ResponseObject response=server.joinGame(params[1].toUpperCase(), game.gameID());
-          this.playing=GameState.PLAYING;
-          ws=new WebsocketFacade(this.site, observer);
-          ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
-          this.gameID=game.gameID();
-          if (this.color == ChessGame.TeamColor.WHITE) {
-            return printWhite(game.game());
-          } else {
-            return printBlackBoard(game.game());
-          }
-        }
-        i++;
-      }
-      throw new ResponseException(400, "invalid ID");
-    } else {
+
+    if (params.length != 2) {
       throw new ResponseException(400, "Expected: playgame <gameID> <[BLACK|WHITE]>");
     }
+
+    int id;
+    try {
+      id = Integer.parseInt(params[0]);
+    } catch (NumberFormatException e) {
+      throw new ResponseException(401, "input must be a valid index");
+    }
+
+    int i = 1;
+    for (var game : this.games) {
+      if (i != id) {
+        i++;
+        continue;
+      }
+
+      String chosenColor = params[1].strip().toUpperCase();
+      boolean isWhite = chosenColor.equals("WHITE");
+      boolean isBlack = chosenColor.equals("BLACK");
+
+      if (!isWhite && !isBlack) {
+        throw new ResponseException(400, "Invalid color. Choose BLACK or WHITE.");
+      }
+      this.color =isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+      boolean isUserValid = (isWhite && username.equals(game.whiteUsername())) ||
+              (isBlack && username.equals(game.blackUsername()));
+      if (isUserValid) {
+        this.playing = GameState.PLAYING;
+        this.gameID = game.gameID();
+        ws = new WebsocketFacade(this.site, observer);
+        ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
+        return isWhite ? printWhite(game.game()) : printBlackBoard(game.game());
+      }
+      ResponseObject response = server.joinGame(chosenColor, game.gameID());
+      this.playing = GameState.PLAYING;
+      ws = new WebsocketFacade(this.site, observer);
+      ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
+      this.gameID = game.gameID();
+      return isWhite ? printWhite(game.game()) : printBlackBoard(game.game());
+    }
+    throw new ResponseException(400, "invalid ID");
   }
+
 
   public String observe(String[] params) throws ResponseException {
     assertSignedIn();
@@ -271,9 +268,6 @@ public class Client {
       throw new ResponseException(400, "Expected: <your name> <password>");
     }
   }
-
-
-
 
   public String printWhite(ChessGame game) {
     ChessBoard board=game.getBoard();
