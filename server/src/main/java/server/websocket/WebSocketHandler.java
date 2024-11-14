@@ -176,11 +176,6 @@ public class WebSocketHandler {
     }
 
 
-//    if (!command.getColor().toString().toLowerCase().equals(turn)){
-//      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Not your turn"));
-//      return;
-//    }
-
     try {
       game.makeMove(command.getMove());
       if (turn.equals("black")){
@@ -190,6 +185,8 @@ public class WebSocketHandler {
         service.getDB().setTurn(chessGame, "black");
       }
     } catch (InvalidMoveException e) {
+      var start = command.getMove().getStartPosition();
+      var end = command.getMove().getEndPosition();
       String errorM="your move is invalid";
       connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, e.getMessage()), command.getGameID());
       return;
@@ -228,5 +225,16 @@ if (game.isInCheckmate(game.getTeamTurn())){
     }
   }
 
+  public String convertToChessCoordinates(int col1, int row1, int col2, int row2) {
+    // Convert column numbers to letters
+    char columnLetter1 = (char) ('a' + col1 - 1); // '1' becomes 'a', '2' becomes 'b', etc.
+    char columnLetter2 = (char) ('a' + col2 - 1);
+
+    // Combine into chess coordinates
+    String coord1 = "" + columnLetter1 + row1;
+    String coord2 = "" + columnLetter2 + row2;
+
+    return coord1 + " " + coord2;
+  }
 
 }
