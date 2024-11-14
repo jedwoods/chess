@@ -187,12 +187,14 @@ public class WebSocketHandler {
     } catch (InvalidMoveException e) {
       var start = command.getMove().getStartPosition();
       var end = command.getMove().getEndPosition();
-      String errorM="your move is invalid";
-      connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, e.getMessage()), command.getGameID());
+      String errorM=String.format("%s is invalid", convertCoords(start.getColumn(), start.getColumn(), end.getColumn(), end.getRow()));
+      connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM), command.getGameID());
       return;
     }
+    var start = command.getMove().getStartPosition();
+    var end = command.getMove().getEndPosition();
     String name=service.getDB().getSession(command.getAuthToken()).username();
-    String note=String.format("%s made a move", name);
+    String note=String.format("%s moved %s", name, convertCoords(start.getColumn(), start.getColumn(), end.getColumn(), end.getRow()));
 
     var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, note);
     connections.broadcast(command.getAuthToken(), notification, command.getGameID());
@@ -225,12 +227,11 @@ if (game.isInCheckmate(game.getTeamTurn())){
     }
   }
 
-  public String convertToChessCoordinates(int col1, int row1, int col2, int row2) {
-    // Convert column numbers to letters
+  public String convertCoords(int col1, int row1, int col2, int row2) {
+
     char columnLetter1 = (char) ('a' + col1 - 1); // '1' becomes 'a', '2' becomes 'b', etc.
     char columnLetter2 = (char) ('a' + col2 - 1);
 
-    // Combine into chess coordinates
     String coord1 = "" + columnLetter1 + row1;
     String coord2 = "" + columnLetter2 + row2;
 
