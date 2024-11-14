@@ -108,6 +108,10 @@ public class WebSocketHandler {
     ChessGame game=service.getDB().getGame(command.getGameID()).game();
     GameData chessGame = service.getDB().getGame(command.getGameID());
     String turn = service.getDB().getTurn(chessGame);
+    assert turn != null;
+    if (turn.equalsIgnoreCase("black")){
+      game.setTeamTurn(ChessGame.TeamColor.BLACK);
+    }
     String winner = service.getDB().getWinner(chessGame.gameID());
     if (!Objects.equals(winner, null)){
       String observe = String.format("%s has already won the game", winner);
@@ -115,6 +119,8 @@ public class WebSocketHandler {
       return;
     }
     if (!command.getColor().toString().toLowerCase().equals(turn)){
+      System.out.println(command.getColor().toString());
+      System.out.println(turn);
       connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Not your turn"));
       return;
     }
@@ -129,7 +135,7 @@ public class WebSocketHandler {
       }
     } catch (InvalidMoveException e) {
       String errorM="your move is invalid";
-      connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM));
+      connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, e.getMessage()));
       return;
     }
     String name=service.getDB().getSession(command.getAuthToken()).username();
@@ -139,8 +145,7 @@ public class WebSocketHandler {
     connections.broadcast(command.getAuthToken(), notification);
     var move=new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     connections.broadcast(command.getAuthToken(), move);
-    
-    service.getDB().removeGame(chessGame);
+
     service.getDB().reAddGame(new GameData(chessGame.gameID(), chessGame.whiteUsername(), chessGame.blackUsername(), chessGame.gameName(), game));
 if (game.isInCheckmate(game.getTeamTurn())){
   String winn = "";

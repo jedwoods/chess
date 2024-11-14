@@ -100,7 +100,6 @@ public class Client {
       throw new ResponseException(500, "expected: makeMove <from> <to>");
     }
 
-
     ChessPosition start = assertCord(params[0]);
     ChessPosition end = assertCord(params[1]);
 
@@ -126,8 +125,8 @@ public class Client {
       return "You cannot move that piece";
     }
     try{
-      ws.makeMove(start, end, promotion, server.getAuthToken(), this.gameID, this.color);
-      return "you moved";
+      ws.makeMove(start, end, promotion, server.getAuthToken(), game.gameID(), this.color);
+      return "";
     }catch (ResponseException e){
       throw new ResponseException(500, e.getMessage());
     }

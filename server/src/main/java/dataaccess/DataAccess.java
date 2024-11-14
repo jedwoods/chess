@@ -82,7 +82,11 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public void reAddGame(GameData game){
-    games.add(game);
+    var turn = games.getTurn(game.gameID());
+    games.remove(game.gameID());
+//    games.add(game);
+
+    games.setTurn(game, turn);
   }
 
   public void addWinner(GameData game, String winner){
@@ -99,7 +103,6 @@ public class DataAccess implements DataAccessInterface{
   }
 
   public void logout(String token){
-
     sessions.remove(token);
   }
 
@@ -154,7 +157,7 @@ private final String[] createStatements = {"""
           INDEX(gameName),
           INDEX(gameID),
           winner varchar(256) default NULL,
-          turn varchar(256) default white
+          turn varchar(256) default 'white'
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """

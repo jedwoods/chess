@@ -74,13 +74,13 @@ public class Service {
 
     }
     if (Objects.equals(currentUser.playerColor(), "WHITE") && currentGame.whiteUsername() == null){
-      dataAccess.removeGame(currentGame);
+//      dataAccess.removeGame(currentGame);
       dataAccess.reAddGame(new GameData(currentGame.gameID(), newUsername, currentGame.blackUsername(), currentGame.gameName(), currentGame.game()));
       return new EmptyMessage();
     } else if (blackBool && currentGame.blackUsername() == null) {
-      dataAccess.removeGame(currentGame);
+//      dataAccess.removeGame(currentGame);
       GameData newGame = new GameData(currentGame.gameID(),currentGame.whiteUsername(),newUsername,currentGame.gameName(),currentGame.game());
-      dataAccess.reAddGame( newGame);
+      dataAccess.reAddGame(newGame);
       return new EmptyMessage();
     } else if (Objects.equals(currentUser.playerColor(), "")) {
       return new EmptyMessage();
