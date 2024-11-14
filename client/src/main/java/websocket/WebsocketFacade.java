@@ -18,7 +18,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.WebSocket;
+import java.util.Collection;
 import java.util.Locale;
+
+import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.SET_BG_COLOR_DARK_GREEN;
 
 
 public class WebsocketFacade extends Endpoint {
@@ -92,15 +96,14 @@ public class WebsocketFacade extends Endpoint {
     }
 
   }
-
-  public void makeMove(ChessPosition start, ChessPosition end, String promotion, String authToken, int gameID, ChessGame.TeamColor color) throws ResponseException {
+  public void makeMove(ChessPosition s,ChessPosition e,String promotion,String t,int gameID,ChessGame.TeamColor c)throws ResponseException{
     ChessPiece.PieceType prom = pieceMap(promotion);
-    ChessMove move = new ChessMove(start,end,prom);
-    MakeMoveCommand action = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move, color);
+    ChessMove move = new ChessMove(s,e,prom);
+    MakeMoveCommand action = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, t, gameID, move, c);
     try {
       this.session.getBasicRemote().sendText(new Gson().toJson(action));
-    } catch (IOException e) {
-      throw new ResponseException(500, e.getMessage());
+    } catch (IOException ex) {
+      throw new ResponseException(500, ex.getMessage());
     }
 
 
@@ -128,6 +131,77 @@ public class WebsocketFacade extends Endpoint {
 
   }
 
+
+  public static ChessPosition assertCord(String move) throws ResponseException {
+    if (move.length() != 2){
+      throw new ResponseException(500, "expect: <row><col>");
+    }
+    int col = move.charAt(0) - 'a' + 1;
+    int row = Character.getNumericValue(move.charAt(1));
+    if (row < 0){
+      row *= -1;
+    }
+    if(col >= 1 && col <= 8 && row >= 1 && row <= 8){
+      return new ChessPosition( row, col);
+    }
+    throw new ResponseException(500, "position out of board");
+  }
+
+  public static String getString(ChessPiece piece, String bP, String bR, String blackKnight, String blackKing, String blackQueen, String blackBishop){
+    return switch (piece.getPieceType()) {
+      case ChessPiece.PieceType.PAWN -> bP;
+      case ChessPiece.PieceType.ROOK -> bR;
+      case ChessPiece.PieceType.KNIGHT -> blackKnight;
+      case ChessPiece.PieceType.KING -> blackKing;
+      case ChessPiece.PieceType.QUEEN -> blackQueen;
+      case ChessPiece.PieceType.BISHOP -> blackBishop;
+    };
+  }
+
+  public static void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
+    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
+    boolean flag = validMove(row, col, moves, start, board);
+    if (flag){
+      if ((row + col) % 2 == 0) {
+        result.append(SET_BG_COLOR_WHITE);
+      } else {
+        result.append(SET_BG_COLOR_GREEN);
+      }
+    }else{
+      if ((row + col) % 2 == 0) {
+        result.append(SET_BG_COLOR_LIGHT_GREY);
+      } else {
+        result.append(SET_BG_COLOR_DARK_GREEN);
+      }
+    }
+    result.append(" ").append(getPiece(piece)).append(" ");
+  }
+
+  public static boolean validMove(int row, int col, Collection<ChessMove> moves, ChessPosition start, ChessBoard board){
+    ChessPosition end = new ChessPosition(row, col);
+
+    for (ChessMove move : moves){
+      int first = move.getStartPosition().getColumn();
+      int second = move.getStartPosition().getRow();
+      int third = move.getEndPosition().getRow();
+      int fourth = move.getEndPosition().getColumn();
+      if (first==start.getColumn() && second == start.getRow() && third == end.getRow() && fourth == end.getColumn() ){
+        return true;
+
+      }
+    }
+    return false;
+  }
+
+  public static String getPiece(ChessPiece piece) {
+    if (piece == null) {
+      return "   ";
+    } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+      return getString(piece, BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP);
+    } else {
+      return getString(piece, WHITE_PAWN, WHITE_ROOK, WHITE_KNIGHT, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP);
+    }
+  }
 }
 
 

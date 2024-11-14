@@ -6,10 +6,9 @@ import records.GameData;
 import records.ResponseException;
 import records.ResponseObject;
 import websocket.WebsocketFacade;
-
 import java.util.*;
-
 import static ui.EscapeSequences.*;
+import static websocket.WebsocketFacade.*;
 
 public class Client {
   ServerFacade server;
@@ -24,7 +23,6 @@ public class Client {
   int gameID;
   ChessGame.TeamColor color;
 
-
   public Client(String site, ServerObserver observer) {
     this.server=new ServerFacade(site);
     this.state=State.SIGNEDOUT;
@@ -34,8 +32,6 @@ public class Client {
     this.site=site;
 
   }
-
-
   public String help() {
     if (this.playing == GameState.PLAYING) {
       return """
@@ -64,7 +60,6 @@ public class Client {
             - quit
             """;
   }
-
   public String eval(String input) {
     try {
       var tokens=input.toLowerCase().split(" ");
@@ -99,15 +94,12 @@ public class Client {
     if (params.length != 2 && params.length != 3) {
       throw new ResponseException(500, "expected: makeMove <from> <to>");
     }
-
     ChessPosition start = assertCord(params[0]);
     ChessPosition end = assertCord(params[1]);
-
     String promotion = "null";
     if (params.length == 3){
       promotion = params[2];
     }
-
     this.games = this.server.listGames();
     GameData game=null;
     for (var c : this.games) {
@@ -132,7 +124,6 @@ public class Client {
     }
 
   }
-
   private String resign() throws ResponseException {
     assertSignedIn();
     if (playing != GameState.PLAYING) {
@@ -146,8 +137,6 @@ public class Client {
     }
     return "";
   }
-
-
   private String redraw() throws ResponseException {
     assertSignedIn();
     if (playing != GameState.PLAYING) {
@@ -284,113 +273,58 @@ public class Client {
   }
 
 
-  public String getPiece(ChessPiece piece) {
-    if (piece == null) {
-      return "   ";
-    } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-      return getString(piece, BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP);
-    } else {
-      return getString(piece, WHITE_PAWN, WHITE_ROOK, WHITE_KNIGHT, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP);
-    }
-  }
-
-  private String getString(ChessPiece piece, String bP, String bR, String blackKnight, String blackKing, String blackQueen, String blackBishop) {
-    return switch (piece.getPieceType()) {
-      case ChessPiece.PieceType.PAWN -> bP;
-      case ChessPiece.PieceType.ROOK -> bR;
-      case ChessPiece.PieceType.KNIGHT -> blackKnight;
-      case ChessPiece.PieceType.KING -> blackKing;
-      case ChessPiece.PieceType.QUEEN -> blackQueen;
-      case ChessPiece.PieceType.BISHOP -> blackBishop;
-    };
-  }
 
 
   public String printWhite(ChessGame game) {
     ChessBoard board=game.getBoard();
     var result=new StringBuilder();
-
     appendColumnLabels(result);
-
     for (int row=8; row >= 1; row--) {
-      reverseRow(result, row, board);
-    }
-
-
+      reverseRow(result, row, board);}
     appendColumnLabels(result);
-    return result.toString();
-  }
-
+    return result.toString();}
   public String printBlackBoard(ChessGame game) {
     ChessBoard board=game.getBoard();
     var result=new StringBuilder();
     appendReverseLabels(result);
-
     for (int row=1; row <= 8; row++) {
-      appendRow(result, row, board);
-    }
+      appendRow(result, row, board);}
     appendReverseLabels(result);
-
-    return result.toString();
-  }
-
-
+    return result.toString();}
   private void appendColumnLabels(StringBuilder result) {
     result.append("   ");
     for (String c : letters) {
-      result.append("  ").append(c).append("  ");
-    }
-    result.append("\n");
-  }
-
+      result.append("  ").append(c).append("  ");}
+    result.append("\n");}
   private void appendReverseLabels(StringBuilder result) {
     result.append("   ");
     for (String c : letters.reversed()) {
-      result.append("  ").append(c).append("  ");
-    }
-    result.append("\n");
-  }
-
+      result.append("  ").append(c).append("  ");}
+    result.append("\n");}
   private void appendRow(StringBuilder result, int row, ChessBoard board) {
-    result.append(" ").append(row).append(" "); // Row label
-    boardBuilder(result, row, board); // Build row content
-    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
-  }
-
+    result.append(" ").append(row).append(" ");
+    boardBuilder(result, row, board);
+    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); }
   private void reverseRow(StringBuilder result, int row, ChessBoard board) {
     result.append(" ").append(row).append(" "); // Row label
     reversedBuilder(result, row, board); // Build row content
-    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n"); // Row end and reset colors
-  }
-
-
+    result.append(RESET_BG_COLOR).append(" ").append(row).append("\n");}
   public String logout() throws ResponseException {
     assertSignedIn();
     try {
       if (this.playing == GameState.PLAYING){
-        this.leave();
-      }
+        this.leave();}
       server.logout();
       state=State.SIGNEDOUT;
-
-      return "You have been logged out";
-    } catch (Exception e) {
-      throw new ResponseException(500, "Failed to logout");
-    }
-  }
-
-
+      return "You have been logged out";} catch (Exception e) {
+      throw new ResponseException(500, "Failed to logout");}}
   public String register(String[] params) throws ResponseException {
     if (params.length == 3) {
       ResponseObject response=server.register(params[0], params[1], params[2]);
       username=params[0];
       state=State.SIGNEDIN;
-      return "";
-    } else {
-      throw new ResponseException(400, "Expected: <your name> <password> <email>");
-    }
-  }
-
+      return "";} else {
+      throw new ResponseException(400, "Expected: <your name> <password> <email>");}}
   public String login(String[] params) throws ResponseException {
     if (params.length == 2) {
       ResponseObject response=server.login(params[0], params[1]);
@@ -398,54 +332,31 @@ public class Client {
       username=params[0];
       return "";
     } else {
-      throw new ResponseException(400, "Expected: <your name> <password> <email>");
-    }
-
-  }
-
+      throw new ResponseException(400, "Expected: <your name> <password> <email>");}}
   private void assertSignedIn() throws ResponseException {
     if (state == State.SIGNEDOUT) {
-      throw new ResponseException(400, "You must sign in");
-    }
-  }
-
-
+      throw new ResponseException(400, "You must sign in");}}
   public void boardBuilder(StringBuilder result, int row, ChessBoard board) {
-//      result.append(" ").append(row).append(" ");
-
     for (int col=8; col >= 1; col--) {
       ChessPiece piece=board.getPiece(new ChessPosition(row, col));
-
       if ((row + col) % 2 != 0) {
-        result.append(SET_BG_COLOR_LIGHT_GREY);
-      } else {
-        result.append(SET_BG_COLOR_DARK_GREEN);
-      }
-
-      result.append(" ").append(getPiece(piece)).append(" ");
-    }
-    result.append(RESET_BG_COLOR).append(" ");
-  }
-
-
+        result.append(SET_BG_COLOR_LIGHT_GREY);} else {
+        result.append(SET_BG_COLOR_DARK_GREEN);}
+      result.append(" ").append(getPiece(piece)).append(" ");}
+    result.append(RESET_BG_COLOR).append(" ");}
   public void reversedBuilder(StringBuilder result, int row, ChessBoard board) {
-//      result.append(" ").append(row).append(" ");
 
     for (int col=1; col <= 8; col++) {
       ChessPiece piece=board.getPiece(new ChessPosition(row, col));
-
       if ((row + col) % 2 == 0) {
-
         result.append(SET_BG_COLOR_DARK_GREEN);
       } else {
         result.append(SET_BG_COLOR_LIGHT_GREY);
       }
-
       result.append(" ").append(getPiece(piece)).append(" ");
     }
     result.append(RESET_BG_COLOR).append(" ");
   }
-
   public String leave() throws ResponseException {
     assertSignedIn();
     if (playing != GameState.PLAYING) {
@@ -457,7 +368,6 @@ public class Client {
     playing=GameState.NOTPLAYING;
     return "You have left the game";
   }
-
   private String listMoves(String[] params) throws ResponseException {
     if (params.length != 1) {
       throw new ResponseException(500, "expected: HighlightMoves <location>");
@@ -480,7 +390,6 @@ public class Client {
     }
     throw new ResponseException(500, "could not validate game");
   }
-
   private String printValidBlack(ChessPosition start, Collection<ChessMove> moves, ChessGame game) {
     ChessBoard board=game.getBoard();
     var result=new StringBuilder();
@@ -495,8 +404,6 @@ public class Client {
 
     return result.toString();
   }
-
-
   private String printValidWhite(ChessPosition start, Collection<ChessMove> moves, ChessGame game) {
     ChessBoard board=game.getBoard();
     var result=new StringBuilder();
@@ -509,8 +416,6 @@ public class Client {
     appendColumnLabels(result);
     return result.toString();
   }
-
-
   public void highlightBuilder(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
 
     for (int col=8; col >= 1; col--) {
@@ -518,8 +423,6 @@ public class Client {
     }
     result.append(RESET_BG_COLOR).append(" ");
   }
-
-
   public void reverseHighlight(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
 
     for (int col=1; col <= 8; col++) {
@@ -527,25 +430,6 @@ public class Client {
     }
     result.append(RESET_BG_COLOR).append(" ");
   }
-
-
-
-  private boolean validMove(int row, int col, Collection<ChessMove> moves, ChessPosition start, ChessBoard board){
-    ChessPosition end = new ChessPosition(row, col);
-
-    for (ChessMove move : moves){
-      int first = move.getStartPosition().getColumn();
-      int second = move.getStartPosition().getRow();
-      int third = move.getEndPosition().getRow();
-      int fourth = move.getEndPosition().getColumn();
-      if (first==start.getColumn() && second == start.getRow() && third == end.getRow() && fourth == end.getColumn() ){
-        return true;
-
-      }
-    }
-    return false;
-  }
-
   private void reverseRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col){
 
     ChessPiece piece=board.getPiece(new ChessPosition(row, col));
@@ -563,44 +447,6 @@ public class Client {
         result.append(SET_BG_COLOR_DARK_GREEN);
       }
     }
-
     result.append(" ").append(getPiece(piece)).append(" ");
   }
-  private void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
-    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
-    boolean flag = validMove(row, col, moves, start, board);
-    if (flag){
-      if ((row + col) % 2 == 0) {
-        result.append(SET_BG_COLOR_WHITE);
-      } else {
-        result.append(SET_BG_COLOR_GREEN);
-      }
-    }else{
-      if ((row + col) % 2 == 0) {
-        result.append(SET_BG_COLOR_LIGHT_GREY);
-      } else {
-        result.append(SET_BG_COLOR_DARK_GREEN);
-      }
-    }
-
-    result.append(" ").append(getPiece(piece)).append(" ");
   }
-
-
-  public ChessPosition assertCord(String move) throws ResponseException {
-    if (move.length() != 2){
-      throw new ResponseException(500, "expect: <row><col>");
-    }
-    int col = move.charAt(0) - 'a' + 1;
-    int row = Character.getNumericValue(move.charAt(1));
-    if (row < 0){
-      row *= -1;
-    }
-
-    if(col >= 1 && col <= 8 && row >= 1 && row <= 8){
-      return new ChessPosition( row, col);
-    }
-    throw new ResponseException(500, "position out of board");
-  }
-}
-

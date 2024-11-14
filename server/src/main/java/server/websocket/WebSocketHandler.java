@@ -218,7 +218,6 @@ if (game.isInCheckmate(game.getTeamTurn())){
   connections.sendMessage(command.getAuthToken(), winMess, command.getGameID());
   return;
 }
-
     if (game.isInCheck(game.getTeamTurn())) {
       String mess=String.format("%s is in check", game.getTeamTurn().toString());
       ServerMessage notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, mess);
