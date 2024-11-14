@@ -103,18 +103,30 @@ public class WebSocketHandler {
 
   private void makeMove(String message) throws IOException {
 
+
     MakeMoveCommand command=new Gson().fromJson(message, MakeMoveCommand.class);
     ChessGame game=service.getDB().getGame(command.getGameID()).game();
     GameData chessGame = service.getDB().getGame(command.getGameID());
+    String turn = service.getDB().getTurn(chessGame);
     String winner = service.getDB().getWinner(chessGame.gameID());
-    if (!Objects.equals(winner, "NULL")){
+    if (!Objects.equals(winner, null)){
       String observe = String.format("%s has already won the game", winner);
       connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, observe));
+      return;
+    }
+    if (!command.getColor().toString().toLowerCase().equals(turn)){
+      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, "Not your turn"));
       return;
     }
 
     try {
       game.makeMove(command.getMove());
+      if (turn.equals("black")){
+        service.getDB().setTurn(chessGame, "white");
+      }
+      else{
+        service.getDB().setTurn(chessGame, "black");
+      }
     } catch (InvalidMoveException e) {
       String errorM="your move is invalid";
       connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM));

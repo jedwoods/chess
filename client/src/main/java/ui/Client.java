@@ -99,15 +99,34 @@ public class Client {
     if (params.length != 2 && params.length != 3) {
       throw new ResponseException(500, "expected: makeMove <from> <to>");
     }
+
+
     ChessPosition start = assertCord(params[0]);
     ChessPosition end = assertCord(params[1]);
+
     String promotion = "null";
     if (params.length == 3){
       promotion = params[2];
     }
 
+    this.games = this.server.listGames();
+    GameData game=null;
+    for (var c : this.games) {
+      if (c.gameID() == this.gameID) {
+          game = c;
+      }
+    }
+    assert game != null;
+    ChessPiece piece = game.game().getBoard().getPiece(start);
+    if (piece == null){
+      return "no piece to move";
+
+    }
+    if (piece.getTeamColor() != this.color){
+      return "You cannot move that piece";
+    }
     try{
-      ws.makeMove(start, end, promotion, server.getAuthToken(), this.gameID);
+      ws.makeMove(start, end, promotion, server.getAuthToken(), this.gameID, this.color);
       return "you moved";
     }catch (ResponseException e){
       throw new ResponseException(500, e.getMessage());

@@ -120,6 +120,15 @@ public class DataAccess implements DataAccessInterface{
 
   }
 
+public void setTurn(GameData game, String turn){
+    games.remove(game.gameID());
+    games.setTurn(game, turn);
+}
+
+
+public String getTurn(GameData game){
+    return games.getTurn(game.gameID());
+}
 
 
 public boolean isEmpty(){
@@ -144,7 +153,8 @@ private final String[] createStatements = {"""
           PRIMARY KEY (gameID),
           INDEX(gameName),
           INDEX(gameID),
-          winner varchar(256) default NULL
+          winner varchar(256) default NULL,
+          turn varchar(256) default white
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """

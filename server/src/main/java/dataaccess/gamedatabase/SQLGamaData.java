@@ -47,6 +47,36 @@ public class SQLGamaData implements GameInterface{
     return null;
   }
 
+  public void setTurn(GameData token, String turn){
+    var statement = "INSERT INTO games (gameID, gameName, jsongame, turn) VALUES (?, ?, ?, ?)";
+    var json = new Gson().toJson(token);
+    try {
+      var id=executeUpdate(statement, token.gameID(), token.gameName(), json, turn);
+    } catch (DataAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String getTurn(Integer currentID){
+    try (var conn =DatabaseManager.getConnection()){
+      var statement = "SELECT * FROM games WHERE gameID =?";
+      try (var ps = conn.prepareStatement(statement)){
+        ps.setInt(1, currentID);
+        try (var rs = ps.executeQuery()) {
+          if (rs.next()){
+            return rs.getString("turn");
+          }
+        }
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } catch (DataAccessException e) {
+      return null;
+    }
+    return null;
+
+  }
+
   public String getWinner(Integer currentID){
     try (var conn =DatabaseManager.getConnection()){
       var statement = "SELECT * FROM games WHERE gameID =?";
