@@ -20,6 +20,7 @@ import websocket.messages.ServerMessage;
 
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
@@ -83,23 +84,39 @@ public class WebSocketHandler {
     String name = service.getDB().getSession(authToken).username();
     GameData chessGame = service.getDB().getGame(gameID);
     ChessGame game =chessGame.game();
-    game.resign(game.getTeamTurn());
-    service.getDB().removeGame(chessGame);
-    service.getDB().reAddGame(new GameData(chessGame.gameID(), chessGame.whiteUsername(), chessGame.blackUsername(), chessGame.gameName(), game));
-    String message = String.format("%s has resigned", name);
-    var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-    connections.broadcast(authToken, notification);
+
+
+      String winn;
+      if (game.getTeamTurn() == ChessGame.TeamColor.WHITE){
+        winn =chessGame.blackUsername();
+        service.getDB().addWinner(chessGame, chessGame.blackUsername());
+      }
+      else{
+        winn =chessGame.whiteUsername();
+        service.getDB().addWinner(chessGame, chessGame.blackUsername());
+      }
+      Notification winMess = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s has resigned", winn));
+      connections.broadcast(authToken, winMess);
+      connections.sendMessage(authToken, winMess);
   }
 
 
   private void makeMove(String message) throws IOException {
+
     MakeMoveCommand command=new Gson().fromJson(message, MakeMoveCommand.class);
     ChessGame game=service.getDB().getGame(command.getGameID()).game();
     GameData chessGame = service.getDB().getGame(command.getGameID());
+    String winner = service.getDB().getWinner(chessGame.gameID());
+    if (!Objects.equals(winner, "NULL")){
+      String observe = String.format("%s has already won the game", winner);
+      connections.sendMessage(command.getAuthToken(), new Notification(ServerMessage.ServerMessageType.NOTIFICATION, observe));
+      return;
+    }
+
     try {
       game.makeMove(command.getMove());
     } catch (InvalidMoveException e) {
-      String errorM=String.format("%s is invalid", command.getMove().toString());
+      String errorM="your move is invalid";
       connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM));
       return;
     }
@@ -113,6 +130,21 @@ public class WebSocketHandler {
     
     service.getDB().removeGame(chessGame);
     service.getDB().reAddGame(new GameData(chessGame.gameID(), chessGame.whiteUsername(), chessGame.blackUsername(), chessGame.gameName(), game));
+if (game.isInCheckmate(game.getTeamTurn())){
+  String winn = "";
+  if (game.getTeamTurn() == ChessGame.TeamColor.BLACK){
+    winn =chessGame.blackUsername();
+    service.getDB().addWinner(chessGame, chessGame.blackUsername());
+  }
+  else{
+    winn =chessGame.whiteUsername();
+    service.getDB().addWinner(chessGame, chessGame.blackUsername());
+  }
+  Notification winMess = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s has won the game", winn));
+  connections.broadcast(command.getAuthToken(), winMess);
+  connections.sendMessage(command.getAuthToken(), winMess);
+  return;
+}
 
     if (game.isInCheck(game.getTeamTurn())) {
       String mess=String.format("%s is in check", game.getTeamTurn().toString());

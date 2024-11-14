@@ -108,7 +108,7 @@ public class Client {
 
     try{
       ws.makeMove(start, end, promotion, server.getAuthToken(), this.gameID);
-      return String.format("%s ", "invalid move");
+      return "you moved";
     }catch (ResponseException e){
       throw new ResponseException(500, e.getMessage());
     }
@@ -136,7 +136,7 @@ public class Client {
       return "you are not playing a game";
     }
 
-    this.server.listGames();
+    this.games = this.server.listGames();
     for (var c : this.games) {
       if (c.gameID() == this.gameID) {
         if (this.color == ChessGame.TeamColor.BLACK) {

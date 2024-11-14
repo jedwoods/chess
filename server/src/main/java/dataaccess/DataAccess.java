@@ -85,6 +85,15 @@ public class DataAccess implements DataAccessInterface{
     games.add(game);
   }
 
+  public void addWinner(GameData game, String winner){
+    games.remove(game.gameID());
+    games.add(game, winner);
+  }
+
+  public String getWinner(int gameID){
+    return this.games.getWinner(gameID);
+  }
+
   public void removeGame(GameData game){
     games.remove(game.gameID());
   }
@@ -134,7 +143,8 @@ private final String[] createStatements = {"""
           jsongame text NOT NULL,
           PRIMARY KEY (gameID),
           INDEX(gameName),
-          INDEX(gameID)
+          INDEX(gameID),
+          winner varchar(256) default NULL
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
           """,
           """
@@ -144,7 +154,7 @@ private final String[] createStatements = {"""
           json TEXT DEFAULT NULL,
           PRIMARY KEY (authtoken)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-          """
+          """,
   };
 
   private void configureDataBase() throws DataAccessException {
