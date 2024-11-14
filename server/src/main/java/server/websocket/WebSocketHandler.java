@@ -91,23 +91,35 @@ public class WebSocketHandler {
     connections.broadcast(authToken, notification);
   }
 
-  
+
   private void makeMove(String message) throws IOException {
-    MakeMoveCommand command=  new Gson().fromJson(message, MakeMoveCommand.class);
-    ChessGame game = service.getDB().getGame(command.getGameID()).game();
+    MakeMoveCommand command=new Gson().fromJson(message, MakeMoveCommand.class);
+    ChessGame game=service.getDB().getGame(command.getGameID()).game();
+    GameData chessGame = service.getDB().getGame(command.getGameID());
     try {
       game.makeMove(command.getMove());
     } catch (InvalidMoveException e) {
-      String errorM = String.format("%s is invalid", command.getMove().toString());
+      String errorM=String.format("%s is invalid", command.getMove().toString());
       connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM));
       return;
     }
-    String name = service.getDB().getSession(command.getAuthToken()).username();
-    String note = String.format("%s has left your game", name);
-    var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, note);
+    String name=service.getDB().getSession(command.getAuthToken()).username();
+    String note=String.format("%s made a move", name);
+
+    var notification=new Notification(ServerMessage.ServerMessageType.NOTIFICATION, note);
     connections.broadcast(command.getAuthToken(), notification);
-    var move = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+    var move=new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     connections.broadcast(command.getAuthToken(), move);
+    
+    service.getDB().removeGame(chessGame);
+    service.getDB().reAddGame(new GameData(chessGame.gameID(), chessGame.whiteUsername(), chessGame.blackUsername(), chessGame.gameName(), game));
+
+    if (game.isInCheck(game.getTeamTurn())) {
+      String mess=String.format("%s is in check", game.getTeamTurn().toString());
+      ServerMessage notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, mess);
+      connections.broadcast(command.getAuthToken(), notif);
+      connections.sendMessage(command.getAuthToken(), notif);
+    }
   }
 
 

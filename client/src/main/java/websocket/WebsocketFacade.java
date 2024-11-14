@@ -2,14 +2,12 @@ package websocket;
 
 
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import records.ResponseException;
 import ui.ServerObserver;
 import websocket.commands.JoinGameCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -85,14 +83,25 @@ public class WebsocketFacade extends Endpoint {
 
   }
 
-  public void resign(String authToken, int gameID) {
-    UserGameCommand action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID)
-
+  public void resign(String authToken, int gameID) throws ResponseException {
+    UserGameCommand action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+    try {
+      this.session.getBasicRemote().sendText(new Gson().toJson(action));
+    } catch (IOException e) {
+      throw new ResponseException(500, e.getMessage());
+    }
 
   }
 
-  public void makeMove(ChessPosition start, ChessPosition end, String promotion) throws ResponseException {
+  public void makeMove(ChessPosition start, ChessPosition end, String promotion, String authToken, int gameID) throws ResponseException {
     ChessPiece.PieceType prom = pieceMap(promotion);
+    ChessMove move = new ChessMove(start,end,prom);
+    MakeMoveCommand action = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+    try {
+      this.session.getBasicRemote().sendText(new Gson().toJson(action));
+    } catch (IOException e) {
+      throw new ResponseException(500, e.getMessage());
+    }
 
 
   }
@@ -111,9 +120,12 @@ public class WebsocketFacade extends Endpoint {
         return ChessPiece.PieceType.BISHOP;
       }case "queen" ->{
         return ChessPiece.PieceType.QUEEN;
+      }case "null" ->{
+        return null;
       }
+      default -> throw new IllegalStateException("Unexpected value: " + promotion.toLowerCase());
     }
-    throw new ResponseException(500, String.format("%s is not a valid promotion piece", promotion));
+
   }
 
 }

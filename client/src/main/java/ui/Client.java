@@ -101,13 +101,13 @@ public class Client {
     }
     ChessPosition start = assertCord(params[0]);
     ChessPosition end = assertCord(params[1]);
-    String promotion = null;
+    String promotion = "null";
     if (params.length == 3){
       promotion = params[2];
     }
 
     try{
-      ws.makeMove(start, end, promotion);
+      ws.makeMove(start, end, promotion, server.getAuthToken(), this.gameID);
       return String.format("%s ", "invalid move");
     }catch (ResponseException e){
       throw new ResponseException(500, e.getMessage());
