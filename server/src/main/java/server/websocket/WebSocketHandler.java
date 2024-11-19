@@ -217,6 +217,11 @@ if (game.isInCheckmate(game.getTeamTurn())){
   connections.broadcast(command.getAuthToken(), winMess, command.getGameID());
   connections.sendMessage(command.getAuthToken(), winMess, command.getGameID());
   return;
+} else if (game.isInStalemate(game.getTeamTurn())) {
+  String mess="Stalemate";
+  ServerMessage notif = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, mess);
+  connections.broadcast(command.getAuthToken(), notif, command.getGameID());
+  connections.sendMessage(command.getAuthToken(), notif, command.getGameID());
 }
     if (game.isInCheck(game.getTeamTurn())) {
       String mess=String.format("%s is in check", game.getTeamTurn().toString());
