@@ -232,14 +232,14 @@ public class Client {
         this.gameID = game.gameID();
         ws = new WebsocketFacade(this.site, observer);
         ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
-        return isWhite ? printWhite(game.game()) : printBlackBoard(game.game());
+        return "";
       }
       ResponseObject response = server.joinGame(chosenColor, game.gameID());
       this.playing = GameState.PLAYING;
       ws = new WebsocketFacade(this.site, observer);
       ws.playGame(params[1], this.server.getAuthToken(), game.gameID());
       this.gameID = game.gameID();
-      return isWhite ? printWhite(game.game()) : printBlackBoard(game.game());
+      return "";
     }
     throw new ResponseException(400, "invalid ID");
   }
@@ -258,8 +258,10 @@ public class Client {
       int i=1;
       for (var game : this.games) {
         if (i == id) {
-//          records.ResponseObject response = server.joinGame(null, game.gameID());
-          return printWhite(game.game());
+          ws = new WebsocketFacade(this.site, observer);
+          ws.playGame("", this.server.getAuthToken(), game.gameID());
+          this.playing = GameState.PLAYING;
+          return "";
         }
         i++;
       }
@@ -367,7 +369,7 @@ public class Client {
       throw new ResponseException(500, "expected: HighlightMoves <location>");
     }
     ChessPosition start = assertCord(params[0]);
-
+    this.games = this.server.listGames();
     for (var c : this.games) {
       if (c.gameID() == this.gameID) {
         Collection<ChessMove> moves = c.game().validMoves(start);
@@ -418,7 +420,6 @@ public class Client {
     result.append(RESET_BG_COLOR).append(" ");
   }
   public void reverseHighlight(StringBuilder result, int row, ChessBoard board,ChessPosition start, Collection<ChessMove> moves ) {
-
     for (int col=1; col <= 8; col++) {
       colorRow(result, row, board, start, moves, col);
     }
@@ -426,21 +427,6 @@ public class Client {
   }
   private void reverseRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col){
 
-    ChessPiece piece=board.getPiece(new ChessPosition(row, col));
-    boolean flag = validMove(row, col, moves, start, board);
-    if (flag){
-      if ((row + col) % 2 != 0) {
-        result.append(SET_BG_COLOR_WHITE);
-      } else {
-        result.append(SET_BG_COLOR_GREEN);
-      }
-    }else{
-      if ((row + col) % 2 != 0) {
-        result.append(SET_BG_COLOR_LIGHT_GREY);
-      } else {
-        result.append(SET_BG_COLOR_DARK_GREEN);
-      }
-    }
-    result.append(" ").append(getPiece(piece)).append(" ");
+    repeatPrint(result, row, board, start, moves, col);
   }
   }

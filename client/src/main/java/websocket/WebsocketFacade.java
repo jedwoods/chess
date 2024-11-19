@@ -159,16 +159,19 @@ public class WebsocketFacade extends Endpoint {
   }
 
   public static void colorRow(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
+    repeatPrint(result, row, board, start, moves, col);
+  }
+  public static void repeatPrint(StringBuilder result, int row, ChessBoard board, ChessPosition start, Collection<ChessMove> moves, int col) {
     ChessPiece piece=board.getPiece(new ChessPosition(row, col));
     boolean flag = validMove(row, col, moves, start, board);
     if (flag){
-      if ((row + col) % 2 == 0) {
+      if ((row + col) % 2 != 0) {
         result.append(SET_BG_COLOR_WHITE);
       } else {
         result.append(SET_BG_COLOR_GREEN);
       }
     }else{
-      if ((row + col) % 2 == 0) {
+      if ((row + col) % 2 != 0) {
         result.append(SET_BG_COLOR_LIGHT_GREY);
       } else {
         result.append(SET_BG_COLOR_DARK_GREEN);

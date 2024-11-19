@@ -187,7 +187,7 @@ public class WebSocketHandler {
     } catch (InvalidMoveException e) {
       var start = command.getMove().getStartPosition();
       var end = command.getMove().getEndPosition();
-      String errorM=String.format("%s is invalid", convertCoords(start.getColumn(), start.getColumn(), end.getColumn(), end.getRow()));
+      String errorM=String.format("%s is invalid", convertCoords(start.getRow(), start.getColumn(), end.getColumn(), end.getRow()));
       connections.sendMessage(command.getAuthToken(), new Error(ServerMessage.ServerMessageType.ERROR, errorM), command.getGameID());
       return;
     }
@@ -213,7 +213,7 @@ if (game.isInCheckmate(game.getTeamTurn())){
     winn =chessGame.whiteUsername();
     service.getDB().addWinner(chessGame, chessGame.blackUsername());
   }
-  Notification winMess = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s has won the game", winn));
+  Notification winMess = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", winn));
   connections.broadcast(command.getAuthToken(), winMess, command.getGameID());
   connections.sendMessage(command.getAuthToken(), winMess, command.getGameID());
   return;
@@ -226,7 +226,7 @@ if (game.isInCheckmate(game.getTeamTurn())){
     }
   }
 
-  public String convertCoords(int col1, int row1, int col2, int row2) {
+  public String convertCoords(int row1, int col1, int col2, int row2) {
 
     char columnLetter1 = (char) ('a' + col1 - 1); // '1' becomes 'a', '2' becomes 'b', etc.
     char columnLetter2 = (char) ('a' + col2 - 1);
